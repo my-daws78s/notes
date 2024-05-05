@@ -1,0 +1,114 @@
+we completed our expense-shell project
+
+few more shell script concepts we will discuss
+once u get good exposure on shell scripts becomes easy to learn any scripting
+
+intw qn:
+how do u call other scripts from your shell-script.
+---------------------------------------------------
+2 ways
+
+1st way:
+--------
+./scriptname.sh
+what permissions u should have? execute permission chmod +x filename.sh
+when spaces use double quotes inside variables
+COURSE="DevOps from Current Script"
+
+This way calling script variable values will not change after calling other script
+PIDs of 2 scripts are different
+
+u shud answer below way in intws:
+1. changes happened in other script will not affect current script
+2. PID of 2 scripts are different
+
+2nd way:
+--------
+source ./scriptname.sh
+
+variable value changes after calling other script
+PID of 2 scripts will not change.
+
+script1 will take script2 completely inside it.
+
+u shud answer below way in intws:
+1. changes happened in other script will be reflected in current script
+2. PID of 2 scripts are same
+
+function call chesetapudu braces undakudadu just function_name
+
+VALIDATE commands repetition..
+
+Whenever u think there is no relation between current and other script u can use approach1 and when u think both shud respect each other, u can take approach2 means other script variables are used in current script.
+
+---------------------------------------
+32.34mins
+shell scripting disadvantage: script will not exit even error comes..
+set -e --> shell script does manual check, if u want good user experience can use the validate proces which is user's manual check. Performance wise there is no difference in both these ways.
+
+somtimes we use crontab in such case we can go for set -e.
+
+to know where error occured... trap command
+how to find error line number in shell --> google search
+trap 'failure ${LINENO} "$BASH_COMMAND"' ERR
+trap and ERR are signals, failure is function with 2 inputs --> shows line number it failed and bash command that failed..
+Here function name failure can be anything eg: handle_error
+
+some cases --> even error comes it shud move forward --> handling error
+
+during push: git diff common.sh
+chmod -x common.sh
+git pull
+chmod +x common.sh
+
+this set -e is disadvantage in some situations like id expense check case... the script will stop there, if it was using validate we cud handle negative case as well, so there will be cases where set -e is advantage we discuss in future sessions.
+
+delete old logs -- intw qn 53.20mins
+--------------------------------------
+cd /app/logs -> daily 1 log file 1,2yrs later
+system memory increases, hence delete logs more than 2wks old.
+
+IFS: Internal field seperator
+
+Steps:
+-------
+1. decide which folder, check that folder exists or not
+2. .java,.sh,.py,.log files are there in that folder
+3. find only .log files
+4. find only more than 2wks old
+5. delete more than 2wks old logs
+
+lets do in old way (using validate approach)
+
+1.check folder exists or not in shell --> (google search)
+
+2.touch command creates empty file..
+to create file with back date --> touch -d yyyymmdd filename
+create few files with .java, .log etc
+
+3. find . -name "*.log"
+
+4. delete files older than 7 days linux --> google search
+   find . -name "*" -mtime +14 --> more than 14days old
+   find . -name "*" -mtime -14 --> within 14days from current date
+
+Now to delete one by one we need to loop it either for loop or while loop
+while loop to read output in shell script --> google search
+
+Syntax:
+-------
+while IFS = read -r line
+do
+   statements to execute
+done <<< input
+
+<<< is the input here we give input to IFS which reads line by line and executes the statements.
+
+this way line by line files will be deleted... 
+
+1:15hrs tomorrow we will discuss how to schedule this operations..
+
+Q&A:
+---------
+
+1.23.41

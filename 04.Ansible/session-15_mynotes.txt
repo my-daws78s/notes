@@ -1,0 +1,332 @@
+Disadvantages of shell-scripting:
+---------------------------------
+
+1. no idempotency : means to be able to execute a command any number of times without changing its result... (nature of program irrespective of how many times u run, it shud not change result. shell-script is not idempotent in nature by default, we need to take care..)
+2. no error handling
+3. hard to understand
+4. homogeneous - means only works for one distro, ansible is heterogenous
+5. not scalable - cannot work for multiple servers at a time
+6. imperative type of programming (imperative means it is very hard to write, syntax is difficult, all inputs u need to give. Ansible is declarative others like terraform, k8s are declarative form, syntax is easy to understand.)
+
+configuration management
+------------------------
+means server should be ready with application
+
+install appln runtime
+install system packages --> OS related
+install appln dependencies
+download the code
+create users, permissions, directories
+create systemctl services
+all these are configuration mgmnt, to do all these will shell-script is difficult, to do for 100's of servers is very difficult.
+
+Hence we got CM tools --> puppet, chef are old tools
+---------------------
+old tools have certain challenges, syntax was little tough, we need to have some programming language skills, chef had dependancy of learning Ruby
+
+Ansible is new
+There is smthg called push vs pull. Its an architecture style.
+
+push vs pull
+-------------
+a friend is sending a letter from Delhi to Hyd.
+he will call and inform that he sent a courier.
+2 ways: 
+1. we go everyday and check status at DTDC office --> Pull based
+2. dont do anything, whenever it has to come will be delivered. --> Push based
+
+pull means --> we go everytime and check
+push means --> we just get notifications whenever we receive msg.
+facebook notifications:
+earlier days we used to login and see if recipient sent a msg -- pull based
+now we get notifications - push based
+
+pull based --> system entering other system and checking status everytime has disadvatanges
+------------------------
+1. internet traffic increases
+2. unnecessary bandwidth consumption
+3. power and system resources
+4. cost
+
+push based:
+-----------
+active notifications..
+
+generally 99% cases we prefer push based architecture and few cases we prefer pull based, we get to know slowly.
+
+drawing..
+
+pull based:
+-----------
+- the remote-nodes goes and checks inside CM server every 30mins lets say if any changes are available, if yes pulls them.
+- here there is no protocol.
+
+push based:
+-----------
+ansible uses ssh protocol to connect remote-nodes
+u decide the target servers and do the configuration changes when needed.
+
+adv of pull based:
+------------------
+say some 100 users and there and crores of business is happening, employee of remote-node1 made some changes so that appln went down and lot of damage happens, so in next 30mins automatic-reset will happen from CM server as it is scheduled to check every 30mins for every changes.
+
+disadv of push based:
+---------------------
+so here if same employee makes problem, auto-reset is not available but we place some monitoring tools and we check and fix such issues from CM/Ansible servers.
+
+16.13min
+
+pros and cons are always there, no architecture is 100% perfect, we choose what is best for us.
+
+u can read the concepts inside github/concepts/ansible.MD
+
+Ansible Features we understand when we do practice...
+
+18.14mins
+Lets create 2 rhel servers, 1 for Ansible/Master server and one for Remote Node server.
+----------------------------------------------
+Ansible-Master:
+
+sudo dnf install ansible -y
+
+Ansible is developed using python, Ansible push is available later introduced Ansible pull.
+
+Basic Syntax:
+Adhoc commands:
+----------------
+ansible -i <inventory> -e ansible_user=ec2-user -e ansible_password=DevOps321
+
+inventory means ip-address generally = u can use private address of Ansible-Node server.
+
+Linux --> we call as commands
+In Ansible it is called as modules or collections.
+
+ansible -i Ansible-Node-private-ip, all -e ansible_user=ec2-user -e ansible_password=DevOps321 -m ping
+means it replies as pong means it says am available and alive
+give a wrong username and u see an error but wrong pwd it still works strange here..
+
+If I want to install something:
+-------------------------------
+ansible -i Ansible-Node-private-ip, all -e ansible_user=ec2-user -e ansible_password=DevOps321 -m ping -m dnf -a "name=nginx state=present or installed"
+This cmd has to run under root...
+
+Installing nginx on the remote server:
+--------------------------------------
+ansible -i Ansible-Node-private-ip, all -e ansible_user=ec2-user -e ansible_password=DevOps321 -m dnf -a "name=nginx state=installed" -b
+Ansible-Node-IP | CHANGED => ... it will show what changes are done in yellow
+run same command again and u will see in green..
+Ansible-Node-IP | SUCCESS =>
+
+-b --> become root
+
+Installing nginx on the remote server:
+--------------------------------------
+ansible -i Ansible-Node-private-ip, all -e ansible_user=ec2-user ansible_password=DevOps321 -m service -a "name=nginx state=started" -b
+
+Now hit the Ansible-Node-Public-IP on browser and u can see default index.html page opens.
+
+in Linux, we manually configured servers --> through commands
+Shell script --> all commands in a file, run that file one time
+
+Similarly in Ansible, we have
+Adhoc commands --> manual way its painful
+Playbooks --> keep all your modules in a single file with YAML syntax and run that file, it is done..
+
+YAML --> Yet Another Markup Language
+
+facebook.com
+we fill in our laptop all the fields and how it reaches other side of server, it is thru DTO's data transfer objects
+
+Data Transfer Objects DTO's:
+-----------------------------
+This data is carried by markups
+<h1> I am learning YAML </h1> markup means keeping between these tags.
+
+HTML is a popular Markup language --> Hyper text markup language
+XML --> very popular earlier, user and pwd goes thru this xmls
+<User>
+	<Username>muralikrishna</Username>
+	<Password>admin123</Password>
+</User>
+taking this information server will run a query and verify in db.
+
+These are all templates, even in banks they follow these forms/templates.
+
+XML
+-------
+<Student> object
+	<Name>MuraliKrishna</Name> fields and values
+	<DOB>1985-07-02</DOB>
+	<Address>Gandhi Nagar</Address>
+</Student>
+
+<Student> object means which has some field inside..
+	<Name>MuraliKrishna</Name> fields and values
+	<DOB>1985-07-02</DOB>
+	<Addresses> is an object
+		<PermAddress> object
+			<AddressLine1></AddressLine1> field
+			<AddressLine2></AddressLine2>
+			<Street></Street>
+		</PermAddress>
+		<CurrentAddress>
+			<AddressLine1></AddressLine1> field
+			<AddressLine2></AddressLine2>
+			<Street></Street>
+		</CurrentAddress>
+	  </Address>
+</Student>
+
+List of objects...
+
+XML validator:
+https://jsonformatter.org/xml-validator
+
+until 2000 few tchnologies oracle middleware, jboss middleware, programming all were mostly using XML's, but opening and closing was so much as part of xml's so they came up with JSON.
+
+JSON --> Java Script Object Notation:
+-------------------------------------
+Everything starts with { } this is called Map
+{
+	"Username": "muralikrishna",
+	"Password": "admin123",
+	 "DoorNo": 123
+}
+
+JSON formatter:
+https://jsonlint.com/
+
+[] --> This denotes List
+when to write list of objects like addresses:
+{
+	"name": "murali"
+	"dob": "1985-07-02"
+	"address": [
+		{
+			"address-line1": "d-2020",
+			"city": "bairagiguda"
+			"type": "Perm"
+		},
+		{
+			"address-line1": "d-2020",
+			"city": "bairagiguda"
+			"type": "Current"
+
+		}
+	  ]
+}
+
+YAML --> Yet Another Markup Language
+------------------------------------
+based on indentation, indentation means space.
+Python is also based on indentation.
+Programming still JSON is being used. frontend and backend communication is still happening in JSON.
+YAML is used for syntax Ansible, k8s, cloud formation.
+
+name: sivakumar
+dob: 2020-01-01
+
+name: sivakumar
+dob: 2020-01-02
+address: d-203, gandhinagar,bengaluru
+
+Now to mention list of address we denote with hyphen
+----------------------------------------------------
+indentation means objects related to one type shud come under one line.
+
+name: sivakumar
+dob: 2020-01-02
+address:
+- addressline-1: d203
+  addressline-2: gandhi nagar
+  city: bengaluru
+  type: Perm
+
+- addressline-1: d203
+  addressline-2: gandhi nagar
+  city: bengaluru
+  type: Current
+ gender: male
+
+YAML Validator:
+https://www.yamllint.com/
+multiple students means it starts with hyphen
+-student	
+
+1:01hrs
+--------
+Create Repository ansible and write programs:
+
+01-ping.yaml or 01-ping.yml
+- name: ping the server
+  hosts: web
+  tasks: #list of tasks/modules/servers
+
+  google search: ansible ping server
+  ansible.builtin.ping
+  few we get from community, see collection index, community means outside ansible ppl contributing. ansible has integration with almost everything, u can create linux servers, ec2 servers, google cloud, k8s etc
+  https://docs.ansible.com/ansible/latest/collections/ansible/builtin/ping_module.html
+  collection index from community: https://docs.ansible.com/ansible/latest/collections/index.html
+
+  - name: ping the server
+    hosts: web
+    tasks: #list of tasks/modules/servers
+    - name: pinging the server
+      ansible.builtin.ping:
+
+lets see what is web:
+--------------------
+inventory: list of hosts we are targetting
+inventory.ini (it can be any extention or without any extension, generally ini)
+
+Ansible-Node-Pvt-IP3 # unlisted ip
+[web]
+Ansible-Node-Pvt-IP0
+[db]
+Ansible-Node-Pvt-IP1
+[app]
+Ansible-Node-Pvt-IP2
+[all:children]
+web
+db
+app
+
+now run this:
+ansible -i inventory.ini web --list-hosts
+ansible -i inventory.ini all --list-hosts
+returns results likewise having those ips
+
+ansible inventory commands --> google search
+
+Now run as actual command, this is not adhoc-command:
+ansible-playbook -i inventory.ini -e ansible_user=ec2-user -e ansible_password=DevOps321 01-ping.yaml
+
+Interview Qn: Share ur screen and write ansible playbook and install nginx.
+02-nginx.yaml
+--------------
+- name: install and run nginx
+  hosts: web
+  become: yes
+
+  ansible install package --> google search
+  https://docs.ansible.com/ansible/latest/collections/ansible/builtin/yum_module.html - using yum works only for redhat
+  https://docs.ansible.com/ansible/latest/collections/ansible/builtin/package_module.html - ansible.builtin.package works for all distros - this is called heterogenous feature in ansible..
+  this also shows the required fields.
+  Generally we call ansible as heterogenous but such cases are rare, meaning if we take example of expense project and put few servers in centos and few in redhat, is that an advanatage? No, as per business/technical its a wrong decision. lets go with dnf.
+
+ansible install package dnf --> google search
+https://docs.ansible.com/ansible/latest/collections/ansible/builtin/dnf_module.html
+ansible.builtin.dnf:
+ name: nginx
+ state: latest
+
+ansible start service --> google search
+ https://docs.ansible.com/ansible/latest/collections/ansible/builtin/service_module.html
+ ansible.builtin.service:
+  name: nginx
+  state: started
+  enabled: yes
+
+  1:22:22hrs we can stop here and practice:
+  -----------------------------------------
+

@@ -1,0 +1,112 @@
+Ansible-Master:
+----------------
+dnf list installed ansible
+sudo dnf install ansible -y
+ansible -i 172.31.17.2, all -e ansible_user=ec2-user -e ansible_password=DevOps321 -m ping
+#all parameters here are mandatory, 172.31.17.2 is private ip of Ansible-Remote server.
+
+[ ec2-user@ip-172-31-28-238 ~ ]$ ansible -i 172.31.21.180, all -e ansible_user=ec2-user -e ansible_password=DevOps321 -m ping
+172.31.21.180 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+
+[ ec2-user@ip-172-31-28-238 ~ ]$ ansible -i 172.31.21.180, all -e ansible_user=ec2-user -e ansible_password=DevOps321 -m dnf -a "name=nginx state=present" -b
+172.31.21.180 | CHANGED => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": true,
+    "msg": "",
+    "rc": 0,
+    "results": [
+        "Installed: nginx-core-1:1.20.1-14.el9_2.1.x86_64",
+        "Installed: redhat-logos-httpd-90.4-2.el9.noarch",
+        "Installed: nginx-1:1.20.1-14.el9_2.1.x86_64",
+        "Installed: nginx-filesystem-1:1.20.1-14.el9_2.1.noarch"
+    ]
+}
+
+-b denotes root means becomes root
+
+Ansible Remote: systemctl status nginx
+
+ansible -i 172.31.21.180, all -e ansible_user=ec2-user -e ansible_password=DevOps321 -m service -a "name=nginx state=started" -b
+#hit site 54.87.26.198 and it shows up nginx home page
+
+=================================================
+Ansible Playbooks:
+------------------
+ansible -i inventory.ini web --list-hosts
+ansible -i inventory.ini app --list-hosts
+ansible -i inventory.ini all --list-hosts
+
+ansible-playbook -i inventory.ini -e ansible_user=ec2-user -e ansible_password=DevOps321 01-ping.yml
+ansible-playbook -i inventory.ini -e ansible_user=ec2-user -e ansible_password=DevOps321 02-nginx.yaml
+ansible-playbook -i inventory.ini -e ansible_user=ec2-user -e ansible_password=DevOps321 03-multi-play.yaml
+ansible-playbook -i inventory.ini -e ansible_user=ec2-user -e ansible_password=DevOps321 04-variables.yaml
+
+expense-ansible project its better to work in 3 instances having inventory.ini, keeping ansible server seperate, else facing issue with db.yaml itself.
+
+=================================================
+
+expense-ansible-roles:
+----------------------
+Configuring DB:
+----------------
+roles/db/tasks/main.yaml
+	/vars/maim.yaml
+inventory.ini
+db.yaml
+ansible.cfg
+
+1. test using vars_prompt in db.yaml
+ansible-playbook -i inventory.ini -e ansible_user=ec2-user -e ansible_password=DevOps321 db.yaml
+
+2. next test removing prompt and mysql_root_password in vars/main.yaml
+ansible-playbook -i inventory.ini -e ansible_user=ec2-user -e ansible_password=DevOps321 db.yaml
+
+3. test keeping inventory.ini,ansible_user in ansible.cfg and ansible_password in inventory.ini
+ansible-playbook db.yaml
+
+4. test credentials.yaml using ansible-vault keeping ansible_user, ansible_password, mysql_root_password
+vars_files: #in db.yaml and remove [all:vars] inside inventory.ini
+ credentials.yaml
+
+------------------------
+Configuring Backend:
+------------------------
+backend.yaml
+roles/backend/tasks/main.yaml
+	     /vars/main.yaml
+	     /templates/main.yaml
+
+I created 3 repos:
+-------------------
+1) expense-ansible-roles: tested db.yaml thing, created backend and frontend but deleted wihtout a backup as repo was conflicting...
+ansible-playbook db.yaml
+
+2) expense-ansible-roles-common: tested end to end and works
+ansible-playbook main.yaml -e component=db
+ansible-playbook main.yaml -e component=backend
+ansible-playbook main.yaml -e component=frontend
+
+3) expense-ansible-vaults: tested credentials
+ansible-playbook main.yaml -e component=db --ask-vault-pass
+
+credentials.yaml
+login_user: root
+login_password: MyExpenseApp@1
+remote_user: ec2-user
+ansible_password: DevOps321
+
+ansible-vault create credentials.yaml
+ansible-vault view credentials.yaml
+ansible-vault edit credentials.yaml
+
+and copy to windows and commit again...as windows doesnt have ansible, we did in linux outside repo and copied to windows..
+
+

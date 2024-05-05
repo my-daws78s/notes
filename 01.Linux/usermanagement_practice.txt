@@ -1,0 +1,144 @@
+created an instance using keybased approach:
+login to server where pub/pem are located:
+ssh -f file.pem ec2-user@publicip
+sudo su -
+
+
+files we refer:
+----------------
+/etc/ssh/ssd_config
+sshd -t
+systemctl restart sshd
+/etc/sudoers
+getent group (to check all groups)
+cat /etc/passwd (to check all users)
+cat /etc/shadow (to check all password in encrypted manner)
+
+Creating a new user ramesh:
+---------------------------
+useradd ramesh
+id ramesh
+uid=1001(ramesh) gid=1001(ramesh) groups=1001(ramesh)
+passwd ramesh
+Start@123
+#Now to make ramesh login using password mechanism
+/etc/ssh/sshd_config
+PasswordAuthentication yes (make it yes initially was no)
+systemctl restart sshd
+
+#Now login ramesh from gitbash:
+ssh ramesh@publicip
+pwd
+works
+#Login from super putty:
+Just hit ip:
+username: ramesh
+password: Start@123
+works
+
+#Now to make ramesh as root user:
+Just add him to wheel user:
+No need of touching the below default values below:
+---------------------------------------------------
+vim /etc/sudoers
+## Allows people in group wheel to run all commands
+%wheel  ALL=(ALL)       ALL
+
+## Same thing without a password
+# %wheel        ALL=(ALL)       NOPASSWD: ALL
+
+and add user ramesh to wheel using below manner:
+usermod -aG wheel ramesh
+uid=1001(ramesh) gid=1001(ramesh) groups=1001(ramesh),10(wheel)
+
+open a new terminal and login ramesh 
+and sudo su - just works
+
+Note: Above method is the recommended way, there is other way which is not recommended:
+vim /etc/sudoers
+%wheel  ALL=(ALL)       ALL
+ramesh  ALL=(ALL)       ALL (this is the entry to login without password but not recommended, no restarts are needed here too)
+
+===========================================
+Creating new groups devops and testing and assigning ramesh to devops as primary and testing as secondary:
+-----------------------------------------------------------------------------------------------------------
+groupadd devops
+groupadd testing
+usermod -g devops ramesh
+uid=1001(ramesh) gid=1002(devops) groups=1002(devops),10(wheel)
+
+usermod -aG testing ramesh
+uid=1001(ramesh) gid=1002(devops) groups=1002(devops),10(wheel),1003(testing)
+
+===========================================
+Now you want to delete user ramesh properly:
+--------------------------------------------
+delete user from secondary group, 
+change primary group to initial group ramesh 
+and then delete user
+
+gpasswd -d ramesh testing
+Removing user ramesh from group testing
+uid=1001(ramesh) gid=1002(devops) groups=1002(devops),10(wheel)
+gpasswd -d ramesh wheel
+Removing user ramesh from group wheel
+uid=1001(ramesh) gid=1002(devops) groups=1002(devops)
+usermod -g ramesh ramesh (change primary group to initial group ramesh )
+uid=1001(ramesh) gid=1001(ramesh) groups=1001(ramesh)
+userdel ramesh (this simply works, if it did not work means u did not follow process correctly. this way both user and group of ramesh will be deleted.)
+otherwise u may have to delete group seperately:
+groupdel ramesh
+Later /home/ramesh directory also has to be removed...
+
+===========================================
+===========================================
+Now keybased approach for same ramesh:
+cd /home/ramesh
+Before that lets reset everything:
+vi /etc/ssh/sshd_config
+PasswordAuthentication no (have put back again from yes to default value)
+sshd -t
+systemctl restart sshd
+Now test ramesh he cant login anymore, u enter user as ramesh and when u hit for password it will throw error.
+
+How to make him use keybased approach:
+generate keyvalue pair first:
+ssh-keygen -t rsa -b 4096 -f ramesh
+Login login to ec2-user first:
+ssh -i mydevops.pem ec2-user@18.206.115.119
+Now setup user ramesh:
+cd /home/ramesh
+mkdir .ssh
+chmod -R 700 .ssh
+cd .ssh
+vim authorized_keys
+paste the ramesh.pub key
+chmod 400 authorized_keys
+chown -R ramesh:ramesh /home/ramesh/.ssh
+
+Now try login ramesh using his key:
+----------------------------------
+ssh -i ramesh.pem ramesh@18.206.115.119
+works well
+
+Now lets try for sudo access:
+sudo su -
+This asks for password
+So what do we do now??
+#Just add wheel to ramesh secondary group
+usermod -aG wheel ramesh
+uid=1001(ramesh) gid=1001(ramesh) groups=1001(ramesh),10(wheel)
+#Next modify /etc/sudoers as below 
+-----------------------------------
+## Allows people in group wheel to run all commands
+%wheel  ALL=(ALL)       ALL
+
+## Same thing without a password
+# %wheel        ALL=(ALL)       NOPASSWD: ALL (we need to uncomment here for keybased approach)
+
+This just works well....
+
+All ways are testing now...
+
+
+

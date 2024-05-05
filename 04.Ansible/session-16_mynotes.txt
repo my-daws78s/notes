@@ -1,0 +1,295 @@
+Yesterdays Topic:
+-----------------
+
+Dis
+XML, JSON, YAML
+Ansible Adhoc commands - emergency 
+Pull vs Push Architecture
+Ansible-Master, Ansible-Node(remote)
+
+ping module, nginx module --> intws they ask to write
+inventory.ini
+
+Today's Topic:
+--------------
+variable
+data types
+functions
+loops
+conditions
+
+- Define/Declare and Access the variable
+- play level variables, 
+- task level variables, 
+- variables from files,	vars_files
+- variables from prompt, vars_prompt: name, prompt, private:true/false
+- inheritance and overriding
+- variables from inventory
+- variables from arguments
+- variable preference (single variable set in multiple places)
+	- arguments, task level, variable files, prompt, play level, inventory, role level is the order of ranking..
+
+Data types:
+ - int float double boolean array arraylit map - programming langs
+ - Ansible only has -> number string list(hyphen, []) map(key/value), boolean
+
+Conditions:
+ Ansible does not have if, else only when
+-----------------------------------------
+intw qn:
+what is Adhoc command in Ansible -- It is ansible command line to run modules against nodes, instead of playbooks. for some urgency purposes.
+
+indentation is the base for YAML/YML. Python also works with indentation.
+
+start 2 RHEL servers now.. Ansible, Node
+
+what is playbook: playbook is a yaml file containing list of modules or collections. we can write any number of plays in a single play book. also we can target localhost. where ansible is running thats the localhost. 
+Ansible means not only connecting to remote servers, it can connect to local softwares like ec2, azure, aws, gcp any popular software in the world.
+
+03-multi-play.yaml
+------------------
+debug module is just like echo in linux.
+
+ansible-playbook -i inventory.ini -e ansible_user=ec2 -e ansible_password=DevOps321 03-multi-play.yaml
+
+04-variables.yaml
+-----------------
+variable is a DRY concept, dont repeat yourself.
+define/declare the value, assign value to it.
+In Ansible everything is key value pair.
+Just declaring variable is not sufficient but accessing is imp.
+
+vars: #variable declaration
+  Course: "Ansible" #var name and value
+ 
+#Accessing variable in shell:
+A=10
+$A
+
+#Ansible:
+{{Course}}
+
+We learnt in shell of defining variables in different ways - arg level, prompt level etc, lets do them
+
+04-vars-task.yaml
+-----------------
+we did earlier variable declaration at play level, which is at top, similarly we can do at task level.
+
+#inheritance and overriding:
+variables from play level can be inherited to task level.
+#override means variables inside task level will be printed.
+#inherited means when variables are not defined in task level it will inherit from play level.
+
+means task level variables are given first preference.
+
+#general meaning:
+inheritance: varasatvam
+u get properties from forefathers by default.
+override: u do watever u want with that.
+
+In case of many variables like 30,50 or 100:
+06-vars-files.yaml
+-------------------
+- name: variables
+instead of declaring in play level we create vars.yaml
+ vars_files:
+ - vars.yaml
+
+vars.yaml
+----------
+Course: "Devops"
+Trainer: "Siva"
+Duration: "120"
+
+07-vars-prompt.yaml
+--------------------
+confidential information in shell script we used read command
+
+echo "Pls enter password"
+read -s Password
+
+vars_prompt:
+- name: USERNAME
+  prompt: Pls enter your username
+  private: false
+- name: PASSWORD
+  prompt: Pls enter your password
+  private: true
+tasks:
+- name: print information
+  ansible.builtin.debug:
+   msg: "Username: {{USERNAME}}. Password is: {{PASSWORD}}"
+
+08-vars-inventory.yaml
+----------------------
+so far we saw:
+play level variables, 
+task level variables,
+variables from files,
+variables from prompt,
+now variables from inventory
+
+[localhost]
+localhost
+
+[localhost:vars]
+Course="Devops with AWS"
+Trainer="Sivakumar"
+Duration="120hrs"
+
+to define for web group
+[web:vars]
+DB_URL="http://db.mydevops-learning.cloud""
+
+we need not define this inventory.ini file inside our file, Ansible will check in all possible locations/files.
+
+Note: u may see a warning that group and host have same name, its ok.
+
+Eg: If u access a variable that does not exist then we get an error obviously. u shud define somewhere playlevel,tasklevel anywhere..
+
+09-vars-args.yaml
+-------------------
+every programming/scripting u can pass these variables in form of arguments.
+
+31.48min
+ansible vars from arguments --> google search
+-e "PERSON=Ramesh WISHES=Morning" or 
+-e PERSON=Ramesh -e WISHES=Morning or
+--extra-vars "PERSON=Ramesh WISHES=Morning"
+
+10-vars-preference.yaml
+------------------------
+vars_file:
+- vars.yaml
+vars_prompt:
+- name: WISHES
+  prompt: Pls enter WISHES
+  private: false
+vars:
+ WISHES: "Morning from Play variable"
+vars:
+ WISHES: "Morning from Task variable"
+
+vars.yaml
+WISHES: "Morning from variable file"
+
+inventory.ini
+[localhost:vars]
+WISHES: "Morning from inventory"
+
+inside arguments too (make sure u dont give spaces in args its generally a problem in programming, we shud try to escape it.)
+-e WISHES="Morning-from-args"
+
+Observation:
+1st preference is args
+2nd is asking prompt and printed Task level
+3rd is asking prompt nad printed from file vars.yaml
+4th is asking prompt and printed from prompt
+5th printed from PLAY variable
+6th printed from inventory variable
+
+u need not remember or ask in intws but u can know this..
+final level we have role level we will discuss later.
+This is all about role level.
+
+Data types: 47mins
+-----------
+number
+string
+list - []
+map {}
+
+11-data-types.yaml
+-------------------
+Course: Devops with AWS #String
+Tools: #List
+- Linux
+- Shell
+- Ansible
+Experience: #map or dictionary
+ Devops: 3 #number (key and value)
+ AWS: 2
+ Docker: 1
+ multiple objects/elements are Devops, AWS, Docker
+RealProject: true #boolean
+note: all above are written in play level
+now u may print output and observe the difference of list,map.
+Scripting languages datatypes are very limited and simple, in programming langs we have many sets, maps, array list, etc
+
+53.29mins
+Conditions:
+-----------
+12-conditions.yaml
+Ansible, does not gaurantee module/collection for everything. Just as in programming we dont have libraries for everything.
+
+ansible command module --> google search
+(we also have shell module)
+ansible.builtin.command: id expense
+
+output: "rc": 1
+Here we see it automatically exits here whereas in shell-script it moves forward unless we manually exit it.
+(This has been address in Ansible, the advantage over shell-script)
+
+we have an option:
+ignore_errors: true
+(since this is not a major error we can use this)
+
+how can u run a command in shell-script and get the output:
+NAME=$() 
+
+How can u run a command in Ansible and get the output into variable? This is called registering a variable
+Ansible register output --> google search
+register: command_output
+register: USER # another type of declaring variable
+print this and check {{USER}}
+it has information about expense with more details of error
+
+json beautifier: put the output to check properly..
+
+ansible condition --> google search: when key word
+ansible.builtin.command: useradd expense
+when: USER.rc !=0 #condition
+
+Output: run and user expense is created
+run again and it will skip the creation again.
+
+1:08.50 break and Quiz:
+-----------------------
+1. What is idempotency in the context of shell scripting?
+to execute a script multiple times without changing the system state
+
+2. How can u call another shell script within a shell script? source
+
+3. Purpose of the 'set' command in shell scripting?
+Sets script parameters and options
+
+4. How do u schedule a task to periodically run using crontab? crontab -e
+
+5. What command is used to check disk usage in a shell script? df
+my style of using it:
+$ df -h . (displays information about total space and available space on a file system)
+Filesystem      Size  Used Avail Use% Mounted on
+C:              475G  310G  165G  66% /c
+$ du -skh * (to check the information of disk usage of files and directories on a system)
+1.0K    01-hello-world.sh
+1.0K    02-variables.sh
+
+6. How do u send email from a linux server in a shell script? mail
+
+7. What does idempotency ensure in shell scripting?
+Consistent system state after script execution.
+
+8. How do u set paramter in a shell script?
+export A=10
+echo $A
+(refer more about set and export, here it temporary sets in command line)
+
+9. What is the purpose of error handling in shell scripting?
+Handling unexpected events gracefully
+
+10. How do u pass command line arguments to a shell script?
+script_name arg1 arg2...argn
+
+11. Command used to download web pages? wget (curl can also do wget is originally intended for download web-get)
+
+12. ls -a -> to list hidden files along with other folders and files. -a means all

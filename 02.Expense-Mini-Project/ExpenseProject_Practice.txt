@@ -1,0 +1,207 @@
+Created 3 instances - DB, backend, frontend on RHEL9
+All operations to be done as root: sudo su - or sudo su 
+
+########################DB Server Setup:
+
+#Install MySQL Server 8.0.x
+dnf install mysql-server -y
+Start MySQL Service
+systemctl enable mysqld
+systemctl start mysqld
+
+#Verify
+netstat -lntp (verify 3306 port, ignore 33060 which is tcp6)
+ps -ef|grep mysqld
+systemctl status mysqld
+
+mysql_secure_installation --set-root-pass ExpenseApp@1
+
+#DB verify:
+mysql
+show databases;
+use (any-schema-name);
+show tables;
+select * from any-table;
+
+######################## backend Server Setup:
+
+Here deveoper chooses a programming language to develop his code to interact with database:
+NodeJS is the language used.
+Hence we install nodejs
+
+dnf module list
+dnf module list nodejs
+dnf module disable nodejs -y
+dnf module enable nodejs:20 -y
+dnf install nodejs -y
+
+#Lets configure the application:
+create a user 'expense' who will act as a daemon to run the developer's application:
+
+useradd expense
+
+create an application directory and download the application:
+mkdir /app (created app inside root directory)
+ls -lt
+curl -o /tmp/backend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-backend-v2.zip
+cd /app
+unzip /tmp/backend.zip
+[ root@ip-172-31-86-8 /app ]# unzip /tmp/backend.zip
+Archive:  /tmp/backend.zip
+  inflating: DbConfig.js
+  inflating: TransactionService.js
+  inflating: index.js
+  inflating: package.json
+   creating: schema/
+  inflating: schema/backend.sql
+
+NodeJS Structure
+--------------------
+package.json -> It is a build file, developers also mention dependencies in this file.
+
+To install the dependencies that application has use the npm command:
+npm install
+Now to configure our application for systemctl to use for restarts:
+#google search: how to configure a new service for systemctl
+vim /etc/systemd/system/backend.service
+
+systemctl daemon-reload
+systemctl start backend
+systemctl enable backend
+
+we see an error: sqlMessage: "Access denied for user 'expense'@'ip-172-31-86-8.ec2… YES)",
+
+Reason: We need to load schema to the database first so that appn can access the particular tables, for that we need a client mysql and load few tables to the schema...below are those commands:
+
+dnf install mysql -y
+Loading schema: mysql -h <MYSQL-SERVER-Private-IPADDRESS> -uroot -pExpenseApp@1 < /app/schema/backend.sql
+mysql -h 172.31.94.172 -uroot -pExpenseApp@1 < /app/schema/backend.sql
+
+Need to execute systemctl commands once again and u will see in status: "App Started on Port 8080""
+ps -ef|grep node
+netstat -lntp (u will see backend app running on port 8080 which is default for a backend service)
+tcp6       0      0 :::8080                 :::*                    LISTEN      2946/node
+
+#Lets test connection from backend to db on backend-server:
+telnet privateip-db 3306
+#Lets test connection from db to backend on db-server:
+telnet privateip-backend 8080
+
+mysql -h private-ip-db -uroot -pExpenseApp@1
+sql>show databases;
+use transactions; (this is the new schema with tables inserted when we loaded schema /app/schema/backend.sql)
+show tables;
+select * from transactions;
+now its empty
+
+########################Frontend Server Setup:
+
+We have setup our db with a sqlserver
+We have setup our backend with an NodeJS application, SQL client, Loaded Database schema and tables to database, tested connection to DB, now all CRUD operations are ready from our backend to happen, we need a frontend for the customer to place actions...
+
+To server the static content we need a webserver to serve the content:
+Developer has chosen Nginx (Engine-X) as a web server and thus we will install Nginx Web Server.
+
+dnf install nginx
+netstat -lntp (u will not find any servic yet obviously)
+Now try to connect from backend and it will fail at this point until we start the service we will not find port 80 running:
+[ root@ip-172-31-86-8 /etc/systemd/system ]# telnet 172.31.92.176 80
+Trying 172.31.92.176...
+telnet: connect to address 172.31.92.176: Connection refused
+Now start the service:
+systemctl start nginx
+netstat -lntp
+tcp6       0      0 :::80                   :::*                    LISTEN      1677/nginx: master
+ps -ef|grep nginx
+root        1677       1  0 07:52 ?        00:00:00 nginx: master process /usr/sbin/nginx
+nginx       1681    1677  0 07:52 ?        00:00:00 nginx: worker process
+[ root@ip-172-31-86-8 /etc/systemd/system ]# telnet 172.31.92.176 80 (from backend or db servers)
+Trying 172.31.92.176...
+Connected to 172.31.92.176.
+
+#Now try to load the site as its front end and u will see it is started and serving the static files given by developer:
+http://publicip-frontendserver/ http port is 80 and https port is 443 and since browser by default used https u will find error if u hit ip directly hence use http and further we will learn to setup as https.
+
+cd /etc
+ls -ltr (reverse order latest will be seen so to see nginx use this)
+cd /nginx
+/etc/nginx/nginx.conf (default content is coming from this configuration file which contains all paths.....)
+/run/nginx.pid
+error_log /var/log/nginx/error.log
+access_log  /var/log/nginx/access.log
+include /etc/nginx/conf.d/*.conf
+listen       [::]:80;
+root         /usr/share/nginx/html --------------------> all default contents is coming from here
+include /etc/nginx/default.d/*.conf
+
+rm -rf /usr/share/nginx/html/*
+
+curl -o /tmp/frontend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-frontend-v2.zip
+cd /usr/share/nginx/html
+unzip /tmp/frontend.zip
+
+Now hit the content over browser and verify u see latest content. Yes its coming but application is throwing error:
+Inspect->Network tab
+Here we need to setup reverse proxy:
+forward proxy means: clients are aware of vpn , servers are not aware.
+reverse proxy means: clients are not aware of vpn , appln/servers are only aware.
+
+A reverse proxy is a type of proxy server that is used to protect a web server’s identity. It’s an intermediate connection point that forwards user/web browser requests to web servers, increasing performance, security, and reliability.
+
+#Create Nginx Reverse Proxy Configuration.
+vim /etc/nginx/default.d/expense.conf
+location /api/ { proxy_pass http://localhost:8080/; }
+Note: Ensure you replace the localhost with the actual ip address of backend component server. Word localhost is just used to avoid the failures on the Nginx Server.
+location /api/ { proxy_pass http://privateip-backend:8080/; }
+systemctl restart nginx
+netstat -lntp
+ps -ef|grep nginx
+telnet backendip 8080
+
+#Testing Application:
+Now after reverse proxy setup hit the site again and we see 200 response in Networks->Header/Response
+Validation: entering letters to amount is stopping nodejs appn, we see it only in logs, have to manually restart inside backend server.
+systemctl daemon-reload
+systemctl restart backend
+
+=============================================================
+	Tested the application successfully....
+=============================================================
+
+Lets register and purchase a domain in hostiner.in
+https://www.hostinger.in/domain-name-search
+1. Login using google first
+2. Hit https://www.hostinger.in/domain-name-search
+3. Choose a domain name eg: mydevops-learning.cloud (₹ 1,569.00, ₹ 89.00 /1st yr)
+4. Make the payment 122/- deducted for me..
+
+Now I need to transfer the domain to AWS.. Why should I do that?
+AWS we have smthg called Route 53.. u can register domains like godaddy
+Since Route 53 domains are very costly, we registered in hostinger and transfer the domain here since we have our infrastructure here in AWS.
+
+Route 53 -> Hosted Zones -> Create Hosted Zone -> mydevops-learning.cloud, public hosted zone, create.
+It gives few records, called name server records.. These we update in hostinger, we are telling hostinger that I don't need ur services...
+
+Now go to hostinger -> DNS/Name servers -> change Name servers (we dont use hostiner nameservers)
+copy these that were generated from Route 53:
+Name servers
+ns-1652.awsdns-14.co.uk
+ns-634.awsdns-15.net
+ns-1030.awsdns-00.org
+ns-35.awsdns-04.com
+
+Changing nameservers, give all names form Route 53. Its just like bsnl, airtel numbers ni port chesukunnattu (Number porting is the process of taking an existing phone number and transferring it to another provider.) Here we are porting only domain ownership but provider is always hostinger... we can anytime come back to hostiner.
+
+What we did is saying to hostinger that I used u only to register domain but these are the name-servers am actually going to use.
+
+http://mydevops-learning.cloud
+
+----->Now how did the application show up when we hit my domain, where is that configuration residing??
+
+
+
+
+
+
+
+

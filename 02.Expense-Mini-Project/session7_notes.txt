@@ -1,0 +1,331 @@
+This week we will focus on expense project manually.
+doman purchase, configure, dns concepts, linux concepts, folder structure
+
+Next week on shell scripting
+we learnt so far the network command like netstat -lntp
+
+------------------------------
+--More commands for troubleshooting:
+
+telnet ipaddress port (to check connectivity to other machines)
+backend server:
+telnet ip-db port-db (there can be other commands too)
+
+systemctl status mysqld
+netstat -lntp (33060 is tcp6 ignore)
+ps -ef | grep mysql
+
+#DB:
+mysql
+show databases;
+use transaction;
+
+#backend:
+dnf module list -> to find out all versions
+
+windows cmd prompt: ipaddress -> private ip address
+browser: what is my ip -> public ip address given by ISP
+
+ping dbprivateipaddress --> good its reaching to ipaddress
+telnet dbprivateip port --> it should also be able to test the port
+
+mysql -h -uroot -pExpenseApp@1
+mysql> show databases;
+use transactions;
+show tables;
+select * from transactions;
+
+netstat -lntp --> backend runs on port 8080
+ps -ef|grep node
+
+------------------------------
+
+Create 3 instance for DB/backend/frontend together in AWS:
+
+##DB:
+------------------------------------------
+execute all commands from git for setup:
+connection mysql
+show databases;
+
+##backend setup:
+------------------------------------------
+execute all commands from git for setup
+here nodejs is the programming language used and there will be many versions OS supports and 
+we can disable that we do not need. we disable all and enable latest 20
+
+versions, programming languages to choose are shared by developers/architects. They have idea on everything like devops,cloud,development,databses,networking,os.
+
+we will discuss about the source code .zip when discusing cicd.
+
+#We need not know about NodeJS development but should know structure of it:
+
+by default we have .js file for nodejs, other languages .java, .py, .php
+package.json -> developers mention their dependencies and their versions, this is a build file also
+Every language will have one build file.
+package.json -> nodejs
+pom.xml -> java
+requirements ->
+golang
+php
+.net
+u need not remember them hardly the principle is same for any language.
+
+npm install -> the dependencies of nodejs as mentioned in package.json, it knows the location
+then u create the systemctl command backend.service where we give the private ip for dbhostname to be able to connect db from backend server nodejs
+
+#Diagram representation explanation of using private ip:
+------------------------------------------------------
+home laptop to modem request happens when open facebook.com that is not within home network so sends request outside home n/w to ISP n/w which becomes public n/w.
+
+windows cmd prompt: ipaddress -> private ip address
+browser: what is my ip -> public ip address given by ISP
+
+This is a concept of NAT
+Earlier every system used to have one public ip and since that can exhaust. The concept of Modem came in. The public ip range is 2^32 is IPV4.
+Default Gateway -> its the modem ip address that keeps changing based on number of devices.
+during irctct booking it says u cant book more than 2 tickets from same ip reason is this which is nothing but the modem ip address not the number of devices.
+when terrorist attack happens using the ISP they will figure out our home of modem ip.
+if we want to keep the same modem ip we can pay some amount monthly like 1000/-
+
+going forward in our project we will disable public ip address.
+
+#Explanation of need of sql client in backend server:
+------------------------------------------------------
+systemctl status backend u will see error, coz u only gave private ip address of db, u did not configure anything like username/pwd. We created database server but we did not give any tables etc. We are running operations from backend server, to be able to operate on it, db shud be ready. Its like saying a robert to put in clothes inside shel without knowing the rack.
+
+mysql-server --> this is server
+mysql --> client
+
+Linux -> server
+Putty - SSH client
+
+facebook.com -> http server
+browser -> browser client
+
+similarly we need a db-client in backend to be able to access the server mysql-server in DB.
+
+#Hence we install mysql client or loading schemas to database
+dnf install mysql -y
+load schema command. then it loads the sql data .... expense-backend-v2\schema\backend.sql
+expense/ExpenseApp@1 are the credentials used by nodejs application.
+
+Now run the commands like below again:
+systemctl daemon-reload
+systemctl start backend
+systemctl enable backend
+
+#Now load schema:
+mysql -h <MYSQL-SERVER-PrivateIPADDRESS> -uroot -pExpenseApp@1 < /app/schema/backend.sql
+how to know if connection is successful:
+mysql -h -uroot -pExpenseApp@1
+mysql> show databases;
+use transactions;
+show tables;
+select * from transactions;
+
+Now from backend server we are connected to database.
+now systemctl status backend is success....
+first we need to know if our backend is able to connect db:
+ping dbprivateipaddress --> good its reaching to ipaddress
+telnet dbprivateip port --> it should also be able to test the port
+
+backend applns usually work on port 8080
+netstat -lntp
+ps -ef|grep node
+
+
+#Frontend setup on 3rd instance: port 80
+------------------------------------------
+dnf install nginx -y 
+now in browser check using public ip address and it shud server from index.html by default
+http://publicipoffrontend:/ then opens --> as browser by default picks https: 443 port
+we will configure that in further sessions.
+
+netstat -lntp -> its shows port 80 so good there...
+
+defautl content is coming from nginx.conf
+cd /etc/nginx
+nginx.conf
+open and see default port, log location - u need not know many things of nginx dont worry.
+root /usr/share/nginx/html -> location where we need to keep our front website
+/etc/nginx -> Home directory of nginx
+/var/log/nginx/error.log -> location of nginx stores logs
+
+cd /usr/share/nginx/html
+index.html
+if u keep index.html here that will be served by default
+vim devops.html
+<h>Hi I am learning devops with AWS<h1>
+http://publicip/devops.html
+This is called webserver, webfiles ni serve chese oka package.
+
+Lets remove everything, and download appn -> follow steps in git
+we have index.html here.
+Here we have to do a reverse proxy setup.
+#Just as we gave db details to backend, we need to give backend details to frontend.
+we can do this inside /etc/nginx.conf but since this is main configuration, without disturbing this we want to give inside: 
+include /etc/nginx/conf.d/*.conf
+include /etc/nginx/default.d/*.conf
+
+What is Proxy? someone on behalf of you
+interviews manam attend kakunda someone else on our behalf attending, negative usage.
+
+Forward Proxy:
+--------------
+mobile -> VPN -> OTT (us)
+mobile we connect VPN to see restricted content...if ott accepts only US requests, then vpn will change our location to US.
+companies also have vpn's: cisco vpn -> inside companies we cant access internet directly, hence vpn is put.
+Mobile/Laptops here are aware of VPN we are using. This is called as forward proxy.
+clients are aware of vpn , servers are not aware.
+same way internet is not ware of vpn only ur company is aware of vpn
+company VPN purpose is restrict the websites...monitor user requests...
+
+Reverse Proxy:
+-------------
+user connecting facebook server...user is not aware of number of servers etc, user is not aware if facebook is using proxy.
+Clients are not aware of proxy , only servers are aware.
+Request from VPN/nginx is then directed to different servers. This is for security, SSL termination, 
+
+Now setup expense.conf... pick cmds from git
+give private ip address here
+netstat -lntp
+ps -ef|grep nginx
+telnet backendprivateip 8080 connected
+
+http://frontendpublicip it opens expense report
+Inspect->Network tab -> enter text and u see error, nginx is stopping at this stage..code needs to fix..now go to backend and see systemctl status backend and u see server stops. u need to bring it back up
+enter number and u see entries in db in backend server..
+travel,movie,groceris,
+Inspect->Network->Response -> to see proper response of entries made
+
+##you can also watch youtube video xml vs json vs yaml
+
+This is how 3-tier architecture is working..how request flows from front end to backend and from backend to backend.
+so users brwser actions are given by frontend to backend and backend is executing CRUD operation on database.
+
+This is the simple expense project...
+
+=========================================================================
+Registering a Domain:
+Lets purchase a domain:
+all these are domains: google.com, facebookcom, twitter.com
+
+Computers cant remember names, Humans cannot remember numbers:
+DNS means dictionary for domains...
+
+Lets buy a domain:
+we can buy from godaddy -> its costly, hostinger india -> hostinger.in -> low cost.
+
+https://www.hostinger.in/
+https://www.hostinger.in/domain-name-search
+
+.com will be costly
+mdaws78s.online
+sometimes hosting hostinger will ask for 5000 rs.... auto pay
+give proper address...
+click I dont need a website...
+now I need to transfer the domain to AWS.. Why should I do that?
+yearly 120/- will cut or not dont know but will be useful..
+AWS we have smthg called Route 53.. u can register domains like godaddy
+Domains->Registered Domains->mdaws78s it will be very costly.
+so we registered in hostinger and transfer here since we have our infrastructure here in AWS.
+so to update ipaddress or automations, we have many benefits which we will discuss further..
+
+Route 52 -> Hosted Zone -> Create Hosted Zone -> mdaws78s.online, public hosted zone, create.
+It gives few records, called name server records.. These we update in hostinger, we are telling hostinger that I don't need ur services...
+
+1.16.11 see video for options in hostinger DNS/Name servers -> Select Nameservers -> Change nameservers, give all names form Route 53. Its just like bsnl, airtle numbers ni port chesukunnattu (Number porting is the process of taking an existing phone number and transferring it to another provider.) Here we are porting only domain ownership but provider is always hostinger... we can anytime come back to hostiner.
+
+So here we will incur few charges..but free tier no worries, hosted zone is free?
+What we did is saying to hostinger that I used u only to register domain but these are the name-servers am actually going to use.
+It says it will take 24hrs, sometimes it can come within few mins..
+so once u get it, inside AWS create a record and give frontend public ip address and TTL 1sec.
+
+http://daws78s.online - this will take time, so he gave
+http://daws76s.online
+
+aws free tier route53 -> only 1st 12hrs free, its 0.5 usd means 40/- per month, so no worries..
+
+Tomorrow we will discuss again, u will get full clarity..
+
+1.21hrs
+
+intw qn, what is forward proxy and reverse proxy, 
+companies and ott's lo use chesedi forward proxy,
+servers we use reverse proxy...
+
+We completed our project,
+Purchased domain
+We transferred our domain to AWS Route53.
+
+purchase domain and transfer..
+
+Tomorrow, we will discuss 
+Linux concepts, linux folder structure
+soft link vs hard link
+next week we will start shell scripting..
+
+Write an article on Forward Proxy vs Reverse Proxy..
+
+https://joindevops.medium.com/how-dns-work-30ef4ba6762c
+
+Q&A: (1.23hr)
+-------------
+
+mysql is the default user that mysql-server would create that internally.
+
+Linux filesystem:
+- means file
+d means directory
+b means block
+d means device
+
+terraform tho cluster create chesi we will upgrade using blue-green deployment.
+https://github.com/daws-76s/terraform-aws-eks/blob/main/03-eks/main.tf
+end of file u can see:
+
+without domain:
+blue = {
+      min_size      = 2
+      max_size      = 10
+      desired_size  = 2
+      capacity_type = "SPOT"
+      iam_role_additional_policies = {
+        AmazonEBSCSIDriverPolicy          = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+        AmazonElasticFileSystemFullAccess = "arn:aws:iam::aws:policy/AmazonElasticFileSystemFullAccess"
+      }
+
+green = {
+      min_size      = 2
+      max_size      = 10
+      desired_size  = 2
+      capacity_type = "SPOT"
+      iam_role_additional_policies = {
+        AmazonEBSCSIDriverPolicy          = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+        AmazonElasticFileSystemFullAccess = "arn:aws:iam::aws:policy/AmazonElasticFileSystemFullAccess"
+      }
+
+1.47hr - Praveen qns:
+
+What are nameservers? next session vasthundi
+domainnames be it .in,.com has no difference just that business prefer .com, India need not be known by everyone so..
+dnf install nginx -> it will pick the latest versions itself
+companies have their own customized AMI's
+
+apache and apache tomcat both are different
+apache and nginx both are same - they are used as webservers.
+Apache: Apache has been around longer and has a large user base. It's often preferred for its familiarity, extensive documentation, and wide range of features.
+Nginx: Nginx has gained popularity in recent years, particularly for its performance and efficiency in handling high traffic loads. It's commonly used as a reverse proxy server, load balancer, and HTTP cache.
+
+In summary, while both Apache HTTP Server and Apache Tomcat are web servers, they serve different purposes and are used for hosting different types of web applications. Apache HTTP Server is suitable for serving static and dynamic content using various programming languages, while Apache Tomcat is tailored specifically for hosting Java-based web applications.
+
+
+mysql -h 172.31.94.172 -uroot -pExpenseApp@1
+It throws a warning msg, so how to deal with that?
+yes since in history its visible, it throws a warning. u can keep in a file and access that...how?
+need to test this, how to keep in a file and hit that command..
+
+-> chatgpt: my.cnf or mysql.cnf keep the username and pwd and give 600 permissions and finally can hit as mysql... try that..
+
+ended with my question on keypair+wheel access issues, he mentioned 

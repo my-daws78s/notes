@@ -1,0 +1,200 @@
+Lets complete expense project in Ansible today:
+------------------------------------------------
+
+sudo dnf install ansible -y
+create 3 instances... and ansible
+update DNS records
+
+as for our laptop to connect to keyboard, mouse, earphones we need drivers, same way in scripting/programming languages to connect other dependent objects we need libraries...
+
+intw qn: how can u handle errors in ansible?
+ignore_errors: yes/no
+
+----------------------------------------
+ansible shell vs ansible command module:
+-----------------------------------------
+no system can have 100% modules
+
+shell module: it will use shell environment, means we can use redirections >, pipes | and other shell variables...
+env enter in putty... these are all shell variables...
+
+command module --> it will just run the commands, but cannot use shell env like >, pipe | or variables.
+
+When to use shell and when to use command module?
+-------------------------------------------------
+If a simple plain command without variables, redirections, pipes, etc we can use command module.
+
+if u want to run shell script inside ansible or complex commands with redirections then we can use shell module.
+
+ansible command vs shell --> google search and intw qn
+
+18-command-vs-shell.yaml
+-------------------------
+command module is little speed in nature too as it does not need env, whereas shell module needs to refer env and using shell variables takes time, they say.
+run the script and go to /tmp and check u find only shell output.
+
+Conclusion: 
+-----------
+simple commands without the need of shell variables, environment and features like redirections, pipes & go for command module..
+
+if we need to run complex commands or scripts go for shell module.
+
+whatever works in command module works in shell module but vice versa is not true..
+
+backend.yaml
+-------------
+we can go for command module..
+we go for either command/shell module only when feature is not available in ansible module.
+lets see in dnf if we have disable feature..
+
+ansible add user --> google search
+
+ansible.builtin.user --> its heterogenous works for all distros.
+
+useradd/adduser --> this is not needed as TASK [Gathering Facts] will check the distro in backend and take care of it.
+
+if we use ansible modules we can automatically get idempotency nature..
+
+How to know if a module is heterogenous?
+-----------------------------------------
+eg: ansible.builtin.dnf --> not heterogenous, only works for RedHat family.
+
+ansible.builtin.package module --> this is heterogenous.
+
+ansible create directory --> google search
+mkdir /app
+ansible download file --> google search
+
+src: # by default ansible checks in ansible server.
+
+u need not check in ansible machine, its already there in remote machine, just unzip it there ani meaning
+remote_src: yes (when there is already a file in remote machine...)
+
+npm install --> works only where package.json exists hence we run insiade /app after we unzipped the code backend.zip
+but we dont know which location we are there, hence use chdir
+
+36mins
+
+ansible args chdir ---> google search
+In ansible we do not know location we are in so we use this..
+to run cd /app we need to use..
+inside /app it creates node_modules which are nothing but npm dependencies..
+
+backend.service
+we use copy module
+ansible copy module --> google search
+it will copy the file from ansible server to remote server.
+
+yday we discussed for ansible to connect mysql we need some modules..
+ansible.builtin.module pip..
+
+ansible mysql module --> google search
+mysql_db module -> Add or remove MySQL databases from a remote host
+
+ansible service daemon-reload --> google search
+ansible service --> google search
+it has reload option lets see
+
+5mins break
+1:02:25hrs frontend starts
+
+check netstat -lntp
+
+intw qns: what modules did u use in ansible
+ansible.builtin.dnf
+ansible.builtin.service
+ansible.builtin.file
+ansible.builtin.unarchive --> download and unzip 
+user module
+mysql module
+copy module
+pip module
+debug
+command
+shell
+
+ansible remove file --> google search
+ansible unzip --> google search
+
+Now frontend,backend,db are completed...
+once ansible modules are run, if there are issues in connection, it has nothing to do with ansible.. u need to check all connections manually:
+ansible is just a tool to make things easy for u, but if there are syntax issues u shud check ansible.
+
+troubleshoot steps:
+db
+----
+systemctl status mysqld --> check mysql service is running or not
+netstat -lntp --> port 3306 check port no 3306 is opened or not
+ps -ef|grep mysql --> check mysql process is running or not
+
+#check you are able to connect mysql or not
+mysql -h db.daws78s.online -uroot -pExpenseApp@1
+mysql -h db.mydevops-learning.cloud -uroot -pExpenseApp@1
+
+backend
+-------
+systemctl status backend --> check backend service is running
+netstat -lntp --> port 8080 check port no 8080 is running or not
+ps -ef|grep expense/node --> check application is running or not
+telnet db.daws78s.online 3306 --> check you are able to connect mysql or not
+
+#check mysql data is imported
+mysql -h db.daws78s.online -u root -pExpenseApp@1
+show databases;
+use transactions;
+show tables;
+
+frontend
+-------
+systemctl status nginx
+netstat -lntp --> port 80
+ps -ef|grep nginx
+telnet backend.daws78s.online 8080
+
+
+1.24hrs
+Q&A
+------
+Q) how to save logs similar to shell-script inside /tmp?
+Ansible use chesi AMI's create chestham, so logs will be created then.
+laos /var/log/messages we can see logs...
+
+Q) why did we install mysql again when we have installed PyMYSQL?
+e language lo rasinavatiki a language libraries e ivvali..
+
+system/os package --> mysql(might be written in c language)
+ansible --> PyMYSQL (written in python)
+nodejs backend --> mysql(nodejs package)
+can java application use mysql nodejs library? no
+
+Q) state=latest/installed difference?
+ansible dnf --> google search
+both latest and installed both use same version, lets see
+state=latest has significance when used with other parameters like update_cache=true/false, update_only=true/false
+
+QA) We are hardly learning 10-15 modules, we can remember the names for interviews once u practice them.
+Definitely they will ask in intws about instaling nginx in ansible..
+- name: install and run nginx
+  hosts: localhost
+  become: yes
+  tasks:
+  - name: task to install nginx
+    ansible.builtin.dnf:
+     name: nginx
+     state: installed/latest
+  - name: task to start and enable nginx
+    ansible.builtin.service
+     name: nginx
+     state: started
+     enabled: yes
+
+ansible-playbook -i inventory.ini -e ansible_user=ec2-user -e ansible_password=DevOps321 02-nginx.yaml
+
+Q) Not able to create more than 1 instance..
+aws increade vcpu limit --> google search
+steps are clearly given, do that inside Service Quote
+
+Q) inside git we give the information right, how to hide that
+we will use secret manager going forward
+
+	

@@ -1,0 +1,308 @@
+Session9_week3:
+---------------
+
+just before 15 days of course completion we can put our resume in portal.
+prepare resume preparation from now onwards.
+watch Resume_Session now itself, we put our resume last 15days of course
+watch IAM_Sessions will be useful for our sessions also..
+
+We completed:
+-------------
+Linux
+Expenses project
+Even bigger project also we complete the same way but has more components.
+
+We start with Shell Script:
+---------------------------
+3 servers... 
+
+configuring the server?
+------------------------
+install application runtime --> nodejs
+downloaded code
+created a directory
+created a user for our application
+unzip the code
+installed nodejs dependencies
+created systemctl service
+configured mysql details
+start the server
+
+Laptop configure chesthunnam ante meaning: laptop manaki use ayyela cheyadam, softwares etc
+same way server lo install chesthunnam ante configuring the server to use the appln inside it.
+
+MySQL
+-----
+install mysql server
+configure password
+start the server
+
+frontend
+--------
+install nginx
+start nginx
+downloaded the code
+unzipped the code
+configured backend details
+start the server
+
+This is small project so we did everything manually on 3 servers - 15mins
+If a big project like 20 servers also --> 30mins
+If there are crashes again new server needs to be configured and again 15mins or so..
+
+
+Deployment
+----------
+releasing new version: what happens?
+
+download android latest version
+switch off phone
+install latest version
+start the phone
+
+upgrade/releasing/deploying the new application
+------------------------------------------------
+download the new code
+stop the server
+remove old code
+copy the new code
+start the server
+
+Challenge when releasing or configuring the server manually.. takes time
+we can miss steps etc things can happen which are challenges when configuring/deploying applns manually.
+
+logs in field
+--------------
+carry one log at a time manually to home..
+hire a tractor, keep all logs at a time... is kind of automated way
+
+run commands one by one --> manual way
+keep all commands in a file and run that file --> shell script
+--------------------------------------------------------------
+shell runs these commands in sequence... which is available in a shell-script
+but there is a challenge...on the way there can be bugs/ like tractor(auomated vehicle) goes and hiccups on road, we take a decision when we are persons, automated vehicle shud be able to take such decisions.
+
+errors may definitely come
+--------------------------
+eg: mysql without loading u may have started application
+if error occurs: 
+	you ignore?
+	you clear error and go forward
+	we humans have brains have common sense we clear error and go forward.
+How to put common sense to systems?
+we need to check if the present command got success or not..
+	if success go forward
+	if failure, exit the program
+
+What we do is: we try to automate predicting errors as much possible and go forward making the script stable
+
+Programming/Developing/Scripting difference:
+---------------------------------------------
+Coding: For our convenience to understand..
+
+1.Programming/Developing --> reactjs, nodejs, java, .net, python etc.
+	Perfect coding means -> execution time should be less
+			     -> memory consumption should be less
+	Eg: Amazon compared to other companies invests a lot on these..
+	There are many things they focus: data structures, algorithms, design patterns
+
+	connection to DB:
+	fetch the data asap..
+	transaction management
+
+2. Scripting: automatic manual tasks other than development
+		      server configuration
+		      installations
+		      deployment process
+		      Here only job is there any manual process, lets automate it, no head ache of memory like in coding..
+		      *Here response time does not matter in scripting it can be 1min-5mins but in coding its highly imp, response time shud be in milli-secs
+
+Coding concepts will be same either Programming or Scripting:
+------------------------------------------------------------
+variable
+data types --> less priority in scripting 
+functions
+loops
+conditions
+operators -- simple thing, subset of above things
+
+So to learn one programming or scripting there is no dependency on another.. u can learn any language directly. if u want to learn hindi, u need not learn sanskrit.
+
+First thing is common sense:
+
+Devops engineers main/first responsibility is automation
+Last decade what devops achieved is:
+Algorithm
+----------
+1. Reduce time for releases / fast releases
+2. Reduce the defects
+This is nothing but automation
+
+Write down the steps in general way..
+I will install a package thru script
+Person who know how car functions manually becomes easy to understand automation
+automation is just 10% out of 100% work. 90% is to know how does it run manually.
+
+-------even if u dont know scripting, if u follow below steps and ask google it gives everything, be it python or java or anything
+1. check the package is already installed or not
+	if installed thats all
+2. if not installed, 
+	then u need to install
+3. just verify is it done properly or not
+	if good that's all
+	otherwise check and clear the error.
+This is common sense. common sense always wins over the technology.
+
+same thing if u ask google, it will give u everything about any language/scripting..
+Thats is called syntax. Algorith is important which is proper design, syntax is 10%.
+-----------
+
+write down the things even in life and execute it properly..
+Suppose to construct a house, if no planning and designing it keeps on going.
+Same way its important for coding, u first properly design and then syntax comes in place.
+
+write a program, if sunday dont go to school, otherwise go to school:
+--------------------------------------------------------------------
+use coding concepts
+1. check what day is today..
+2. if today is not sunday, just go to school
+3. otherwise enjoy the holiday.
+
+today=wednesday
+if (today=sunday) {
+	print enjoy the holiday
+}
+else
+	print goto school
+
+Out of 10%, if planning/designing is 5%, last 5% is syntax..
+so this way u wite all steps first and in between when u put these coding steps using variables etc then it becomes coding/sripting.
+daily who writes scripting can remember syntax else u can refer google.
+
+Now what is shell?
+------------------
+ls -l --> getting result
+lss -l --> who is checking that it is wrong? nothing but shell	
+
+so shell is the command line interface (CLI) that interprets the linux commands and executes them.
+
+terminal = shell terminal
+shell script --> keeping all the commands you need in a file with variables, conditions, loops, functions, etc is called shell script
+
+linux command and shell script is same...
+even ansible, like things concept is exactly same but syntax differs.
+
+shell interprets and executes shell script.
+
+Where to store scripts?
+-----------------------
+Can u store in ur laptop?
+	security and backup issue --> if laptop crashes?
+	versions --> you must keep the previous versions
+	colloboration --> 100 lines u write and 900 lines others write, sharing code with others when more in person. 
+
+37.58mins
+to store our shell scripts in github
+
+Create GitHub account, create an organization(owner my-daws78s)
+Also in ur profile if u keep github url, u get good feedback in intw.
+
+repository --> stores something
+github --> only store code (u shud not use for personal things docs/images/softwares etc)
+
+git vs github vs gitlab
+	
+Linux --> is a kernel
+Redhat, ubuntu --> implementations of Linux from different vendors
+
+git --> Linux torvalds again his invention, great invention in 21st century.
+gitbub gitlab bitbucket --> implementations of git from different vendors.
+All are same only UI will change.
+
+github is popular for opensource and many opensource things are seen here, thats all. to keep ur code public github is the best thing.
+companies popularity is gitlab and bitbucket
+
+Do you keep all code in single repo?
+a single repo one specific code....
+we dont put all code in one repo.. we put by category.
+we dont keep all books in single shelf
+
+How can I clone it?
+steps
+-----
+1. create repo in github
+2. clone in ur local laptop
+
+mkdir 	repos
+git clone url
+Note: All snaps are available inside Session9_practice
+
+where to develop the code?
+--------------------------
+can I develop code using vim editor inside server? yes but its tough to traverse
+
+IDE --> integrated development environment.
+
+heavy ides used by java developers are:
+eclipse
+intelliJ
+sublime editor
+
+vscode --> light weight and perfect for scripting
+vscode download (for windows)
+u can use the heavy ones also if u are using them already
+
+#git commands:
+create the repository inside github first. or other way is create a directory in local first, go there inside and git init (this makes it as git repository)
+then goto location of repos directory where u want all git repositories to be kept..
+git clone url --> one time and it will create that repo inside ur desired location
+add files in vs editor inside .git repo which is shell-script
+git status --> it will show untracked files
+git add readme.MD
+git commit -m "my first commit to git repo"
+git push -u origin main -- we setup token as well
+finally ur repo is available to public..
+
+#Using all commands together:
+git add . ; git commit -m "commiting multiple files at once." ; git push -u origin main 
+
+Need to setup above things...
+From tomorrow we will learn shell script, this setup has to be there…
+We push the code to github and pull into Linux machine.
+IMPORTANT: we shud always push code from one place, else will cause problems…
+
+Quiz:
+------
+1. systemctl reload <service-name> --> to reload the configuration of a running service without stopping it. (surprise qn)
+
+2. Create a hard link to a file and then delete the original file -> The hard link is unaffected
+
+3. which type of link required additional storage space for its metadata - Soft links
+
+4. In DNS (Domain Name System), TTL means Time to Live - when we give a record how much time it can stay in cache...
+
+5. Record Type 'A' maps a domain name to an IP address.
+
+6. ln -s --> create a symbolic link in linux
+eg: ln -s index.html joindevops.html -->softlink joindevops.html is created
+
+7. AWS Router53 provides which service --> DNS webservice
+
+8. How does a reverse proxy server route incoming requests --> By routing requests to appropriate backend servers
+
+9. ln command is to create hard links between files, ln -s is to create soft links
+
+10. CNAME record in DNS stands for Canonical Name
+
+11. What does a CNAME record map a domain name to? Another domain
+
+12. What does a CNAME record allow you to do? Redirect one domain to another
+
+13. du -h --> displays the disk space usage of a file or directory in linux
+
+14. df -h --> displays the disk usage statistics in human readable format.
+disk utilisation, memory cmds, lets discuss for 10mins in how to troubleshoot li linux commands..
+
+15. tac -> to view contents of a file in reverse order in linux
+
+u have to check the background of concepts 

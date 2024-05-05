@@ -1,0 +1,148 @@
+Session10_week3:
+---------------
+
+shebang is the location of shell interpreter, it will read the command and execute the commands...
+
+datatypes are not that imp, it will detect by itself as number or string.
+
+variables
+data types
+conditions
+functions - we will discuss from here today
+loops
+
+functions
+---------
+it is a block of code that can do some work. It accepts inputs too..
+
+FUNC_NAME () {
+
+}
+
+Variable - any value repeated inside code can be declared as a variable. delaring variables even if its occurrance is just once is a best practice...
+
+similarly, if a block of code is repeating, consider using functions.
+
+log:
+----
+its a best practice to store logs in case of both success/failures.
+
+Redirections:
+-------------
+> --> by default only success output is redirected
+1 --> success eg: ls -l 1> output.log it saves, ajakaj 1> output.log wont save
+2 --> failure eg: ls -l 2> output.log wont save, aajaj 2> output.log saves
+& --> means both success and failure
+>> --> appends
+there shud be no space btw &>>
+&>>
+eg: ls -l &>> output.log
+    ajjdhdj &>> output.log
+    now cat output.log u will see both above output...
+
+LOGFILE=/tmp/$FILENAME-$DATE.log
+btw filename and date it must be hyphen only, underscore did not print filename
+
+31min colors explanation:
+--------------------------
+user can immediately spot it with colors for Success anf Failure
+colors in shell script..
+
+syntax:
+-------
+\e[31m --> red color
+eg: echo -e "\e[31m Hello \e[32m World"
+
+31 Red
+32 Green
+33 Yellow
+34 Blue
+35 Purple
+0 white
+
+41.03mins
+
+If I gave 20 packages to run what will u do? is it simple/good to write 20 lines in script? in such case we use loops...
+
+loops
+-----
+for(int i=0; i<20; i++){
+	print $i;
+}
+
+for loop shell script google search
+
+linux simple packages to install - google search
+since we are using t2.micro picking small packages
+mysql
+gcc
+chrony
+fail2ban
+postgis2_94
+
+steps
+-----
+log redirection
+colors are mandatory
+
+1. user have root access or not
+2. send packages to install as parameters (I dont know what packages to install, do will send dynamically)
+sudo sh install-packages 
+3. then list the packages inside loop
+4. if package is already installed, no need to resinstall right
+yum list installed mysql
+echo $? -->results 0 means already installed
+yum list installed docker means not installed
+echo $? -->results 1
+dnf list installed
+
+59.10mins
+
+we using else for user experience...
+shell script disadvantage --> automatic ga exit avvadu..
+
+Q&A:
+-----
+sourcing : we can put block of code in other script and call this in other scripts. that is usually used in object oriented programming languages but in scripting we use a single script itself.
+
+how to redirect access log to one file and error log to another file... google search
+2> error 1> output
+
+int i = 10 if numbers
+for characters we dont we need to declare that way..
+
+--------------------------
+expense-shell 1.19hr
+--------------------------
+mysql.sh
+sometimes t2.micro may not be successful that time take t3.medium
+
+main project also its same concept with more services...we dont discuss again shell scripting.
+
+after executing output:
+netstat -lntp
+lets stop here today:
+everything is scripting next ansible, terraform u must practice..
+
+Q&A 1.26hr
+-----------
+
+using shell scrip wanted to automate smthg, variable declare chesi pwd set chesanu.
+password is in secret manager in my project I delared in shell script
+u need to keep inside OS somewhere or inside valut and get that dynamically
+team forge - we use
+team forge software --> google search.
+this is configuration management like ansible..
+u need to use AWS Command Line and get it dynamically..
+
+dnf install $i -y &>>$LOGFILE here &>>$LOGILE is not a command we are storing only. dnf .... is the only command..
+
+these colors work in linux script but when we call this in other tools then do colors appear? we use ansible it automatically takes colors..
+
+praveen facing issue with project in backend, status is always coming as failed.
+problem will be with authentication or schema loading... just check logs
+
+mini project why cant we do with container
+shell ansible terraform cicd-jenkins dockers k8s maybe 2m then u can apply for jobs...
+
+

@@ -1,0 +1,210 @@
+Ansible Roles
+-------------
+DRY principal - dont repeat yourself
+    variables: repeated words
+    functions: repeated blocks
+ansible roles -- google search
+https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_reuse_roles.html
+
+What is Ansible Role? intw qn
+Role is a proper structure of variables, tasks, templates, handlers etc Using Roles we can reuse the code
+
+tasks/ --> We will mention all tasks here
+handlers/ --> We will mention all notifiers here
+templates/  --> We will  mention all templates here, with variables
+files/ --> We will mention all files here, without variables
+vars/ --> variables related to roles are here
+defaults --> low priority variables are here
+meta/  --> dependencies are mentioned here
+
+ansible-playbook -i inventory -e ansible_user=ec2-user -e ansible_password=DevOps321 db.yaml
+
+ansible config -- google search
+https://docs.ansible.com/ansible/latest/reference_appendices/config.html
+4 ways of setting variables:
+1) ANSIBLE_CONFIG (environment variable if set)
+2) ansible.cfg (in the current directory)
+3) ~/.ansible.cfg (in the home directory)
+4) /etc/ansible/ansible.cfg
+
+ansible --version
+you see config file = /etc/ansible/ansible.cfg
+
+1)
+now,
+cp /etc/ansible/ansible.cfg /tmp/ansible.cfg
+export ANSIBLE_CONFIG=/tmp/ansible.cfg
+now, 
+ansible --version
+you see config file = /tmp/ansible.cfg
+
+How to unset environment variable in linux -- google search
+unset ANSIBLE_CONFIG
+now again, ansible --version
+you see config file = /etc/ansible/ansible.cfg	
+
+2) /home/ec2-user ... mkdir test .... cp /tmp/ansible.cfg /test
+now again, ansible --version
+you see config file = /home/ec2-user/test/ansible.cfg
+
+3) cp /tmp/ansible.cfg ~/.ansible.cfg
+cd ~ --> denotes to home directory
+now, ansible --version
+you see config file = /home/ec2-user/.ansible.cfg
+
+now open vim ansible.cfg
+and see the link to see all variables
+https://github.com/ansible/ansible/blob/stable-2.9/examples/ansible.cfg
+[defaults]
+inventory = inventory.ini [so u can ignore -i inventory.ini in parameters]
+remote_user=ec2-user [u an ignore ansible_user=ec2-user]
+;Note: ansible_password is not recommended in ansible.cfg hence keep it in inventory.ini
+
+inventory.ini
+[all:vars]
+ansible_password=DevOps321 ; this is for all hosts
+
+/expense-ansible-roles/
+/roles/db/tasks/main.yaml
+	 /vars/main.yaml --> mysql_root_password=ExpenseApp@1
+
+so we need not keep all folders for role structure in loop, whatever is needed we can keep that.
+
+main.yaml are automatically loaded
+
+ansible-playbook db.yaml (no need of rest of parameters)
+
+backend role structure:
+-----------------------
+/expense-ansible-roles/
+/roles/backend/tasks/main.yaml --> copy tasks from /expense-ansible/backend.yaml
+	      /vars/main.yaml --> same way copy vars like login_user, login_password, login_host, DB_HOST
+	      /templates/backend.service.j2 --> Environment="{{DB_HOST}}"
+.j2 --> jinja2 template language
+
+ansible templates -- google search
+u can keep variables in ansible files and replace values with variables.
+now inside /tasks/main.yaml in place of backend.service use backend.service.j2 and ansible.builtin.template instead of ansible.builtin.copy just to have proper control over variable
+templates vs files difference
+templates --> with variables
+files --> without variables
+
+frontend
+----------
+roles/frontend/tasks/main.yaml --> ansible.builtin.template src: expense.conf.j2
+	       /vars/main.yaml --> BACKEND_API_URL=backend.mydevops-learning.cloud
+	       /templates/expense.conf.j2 --> {{BACKEND_API_URL}}
+	       /handler/main.yaml --> u mention restart nginx task
+
+ansible handlers -- google search
+
+what are handlers in ansible? intw qn
+Handlers are nothing but notifiers in ansible..when there is change in config we can notify some task to restart server.
+to restart like nginx only when there is change in configuration like expense.conf.j2 then we use notifiers
+notify:
+- restart nginx
+
+Here main principal we spoke about is code reusage..
+since expense is a small component we dont have it.
+
+In robotics we have 11 components
+3nodejs, 1java, 1php, 1 golang, we can reuse code btw these components
+
+deployment in general means:
+-----------------------------
+1.create directory
+2.remove old code
+3.download new code
+
+delete existing directory
+create new directory
+download code
+extract code
+
+roles/common --> ansible role structure
+roles/common/tasks/app-pre-req.yaml --> mention all above steps
+
+ansible import role -- google search
+now remove all 3 steps from backend/tasks/main.yaml
+and put import
+ansible.builtin.import
+
+lets recreate 3 servers and do again...
+------------------------------------------
+instead of db.yaml,backend.yaml,frontend.yaml u can create main.yaml
+{{component}} but need to give in parameters
+
+ansible-playbook main.yaml -e component=db
+ansible-playbook main.yaml -e component=backend
+ansible-playbook main.yaml -e component=frontend
+
+1:03 5mins break
+1:09:54
+Ansible Vault: intw qn
+---------------
+we are keeping usernames and pwds anwhere, pushing to git which is not secure as anyone can see them.
+ansible vault -- google search
+ansible-vault create <file-name>.yaml
+
+ansible-vault create credentials.yaml
+admin1234
+
+mysql_root_password: ExpenseApp@1
+<<keyboard batteries got lost>>
+cat credentials.yaml
+its encrypted
+
+#so to view this:
+ansible-vault view credentials.yaml
+Vault password: admin1234
+then shows content.
+
+#to edit:
+ansible-vault edit credentials.yaml
+
+inside db.yaml
+vars_files:
+ credentials.yaml
+and inside db/vars/main.yaml comment out the mysql_root_password
+
+ in windows since I dont have ansible-vault command
+ create credentials.yaml and copy the encrypted value but u need to remember pwd admin1234
+
+now run:
+ansible-playbook db.yaml
+login_host is missing in db/vars/main.yaml
+ansible-playbook db.yaml --ask-vault-pass
+
+ansible-vault edit credentials.yaml
+ansible_user: ec2-user
+ansible_password: DevOps321
+
+now, inventory.ini remove [all:vars]
+and also in ansible.cfg remove remote_user
+
+Ansible vault is also outdated, in intw u can say earlier we used Ansible vault not using "AWS SSM Parameter Store"
+Systems Manager Parameter Store provides secure storage and management of secrets. You can store data such as passwords, database strings, Amazon Elastic Compute Cloud (Amazon EC2) instance IDs and AMI IDs, and license codes as parameter values. You can store values as plain text or encrypted data.
+
+Last 2 topics in Ansible:
+-------------------------
+Ansible tags
+Ansible Dynamic inventory
+How Ansible can connect to 10 servers.
+
+Then we go for Terraform
+
+1:26:32 Q&A
+============
+1. Service Quotas
+Manage Quotas-> search ec2 choose Amazon Elastic Compute (Amazon EC2) -> view Quotas ->instances choose Running On-Demand Standard Ac,C,D,H... instances
+they gave by default value as 5 and for many Applied account-level quota value is 1 (for me its 32)
+Here also u can create request and use chat option..
+we also need spot level instances
+
+chat option:
+Support Center - create case - Technical ... or above..
+
+Ansible Tower is not needed will be too much
+will send u a video...
+
+

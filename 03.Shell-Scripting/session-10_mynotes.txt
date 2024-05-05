@@ -1,0 +1,303 @@
+Session10_week3:
+---------------
+
+1. signup to github
+2. create repo
+3. clone the repo
+4. create github token
+5. gitadd . ; git commit -m "some-message" ; git push -u origin main
+
+Shell Script
+------------
+1st line --> #!/bin/bash
+this is called shebang intw qn
+
+shebang is the location interpreter, commands written inside shell script is interpreted and executed by this shebang
+interpreter is nothing but to verify in sequence...
+
+write a small script inside /repos/shell-script 01-hello-world.sh
+and git add and push to github
+and pull now for that create ec2 instance again.. shell-practice
+git clone url (pick from git)
+
+Different types of shells:
+zshell
+kshell
+cshell
+fish
+
+Now they started bash shell mixing all features in earlier shells.
+
+bash shell = shell
+
+How to execute shell script"
+-----------------------------
+sh <script>
+bash <script>
+./<script-name> --> . means current directory (this shud have execute permission)
+X -> running the command/script
+
+tab is not working coz execute permission is not there 
+chmod +x 01-hello-world.sh 
+this is not working in gitbash somehow, dont know the reason
+need to later check inside putty..
+
+02-variables.sh
+problems:
+1. repeated words
+2. if u want to change, u have to change it everywhere
+3. while changing accidentally u may change actual code
+
+Solution:
+Variables
+----------
+int i=0, j=0
+i & j are variables
+we derive formula, submit variables at last.
+
+variables holds some values: 03-variables.sh
+#!/bin/bash
+PERSON1=Ram --> there should not be any space between = and words
+PERSON2=Rahim
+
+$PERSON1 --> $ in bash treats word as variable when attached to it
+$PERSON2
+
+04-variables.sh arguments/parameters
+---------------
+PERSON1=$1
+echo $PERSON1 
+echo {$PERSON1} --> u can use flower braces also
+
+./04-variables.sh Ram
+prints Ram
+./04-variables.sh
+prints empty space
+
+Confidential information: 05-variables.sh
+------------------------
+echo "Pls enter username::"
+read USERNAME #here username is variable
+# in shell script first line is not treated as comment but rest everywhere its treated as document.
+echo "Pls enter password::"
+read PASSWORD
+echo username is $USERNAME, password is $PASSWORD
+
+./05-variables.sh
+Pls enter username::Ram <here its seen when enter manually>>
+Pls enter password::Ram123 <here its seen when enter manually>>
+echo username is Ram, password is Ram123
+
+#To keep this invisible even while typing/entering similar to ec2-user putty shell.
+echo "Pls enter password::"
+read -s PASSWORD
+echo password is Ram123
+./05-variables.sh
+Pls enter password:: -> see it wont appear here
+Password is Ram123 -> but it appears in the output
+
+Data types: not so imp..
+----------
+integer, float, decimal -> treated as numbers in script
+string -> text
+boolean -> true/false ... 1=true, 0=false
+array
+arraylist
+set,map in collections
+
+array --> list of values 
+if u define a variable as array, it can hold list of values...
+
+06-array.sh
+MOVIES=("RRR" "DjTillu" "Murari")
+#list always starts with 0.
+#Size of list is 3
+#index are pointers, they are one number less than the size
+echo "First Movie is:: ${MOVIES[0]}"
+echo "First Movie is:: ${MOVIES[1]}"
+echo "First Movie is:: ${MOVIES[2]}"
+echo "First Movie is:: ${MOVIES[@]}" # prints everything
+
+07-data-types.sh
+NO1=$1
+NO2=$2
+SUM(($NO1+$NO2))
+echo "Total of $NO1 and $NO2 is: $SUM"
+
+google search: shell operators
+
+./07-data-types.sh 10 20
+echo "Total of 10 and 20 is: 30"
+
+./07-data-types.sh 10 ram
+echo "Total of 10 and ram is: 10"
+
+./07-data-types.sh siva ram --> So shell can recognize text or number, treats text as 0
+echo "Total of siva and ram is: 0"
+
+So in scripting datatypes are not that imp, its main preference is in programming languages..
+
+08-special-vars.sh
+-------------------
+intw qn
+
+./08-special-vars.sh devops aws
+echo "All variables: $@" devops aws
+echo "Number of variables passed: $#" 2
+echo "Script Name: $0" 08-special-vars.sh
+echo "Current working directory: $PWD" /home/ec2-user/shell-script
+echo "Home directory of current user: $HOME" /home/ec2-user
+echo "Which user is running this script: $USER" ec2-user
+echo "Hostname of machine is: $HOSTNAME" ip-172-21-34-121.ec2.internal
+echo "Process ID of current script: $$" 2033
+#generally for auditing purpose its used
+sleep 60s $ -- it runs in background
+echo "Process ID of last background command: $!" 2034 (ps -ef|grep sleep)
+
+ps -ef
+u can see this in another console running using ps -ef command
+When u want to see the logs u can check that time
+once the process is killed we dont know its process so in such case some 3rd party tools are available to investigate or inside system logs for auditing
+
++,-,*,/,% operators
+
+conditions
+----------
+when u want to take a decision
+
+I want to check whether a number is greater than 20 or not
+
+first get the number
+check if it is greater than 10 or not
+if greater print greater
+if lesser print lower
+
+if (expression) {
+	this statement will execute, if expression is true
+}
+else{
+	this statement will execute, if expression is false
+}
+
+
+
+NUMBER=5
+if (NUMBER>10){
+print "print given number is greater than 10"
+}
+else {
+print "print given number is less than 10"
+}
+o/p: else block
+if (!NUMBER>10){
+NUMBER>10=false, !=false
+false and false is true
+o/p: if block
+
+search if condition in shell script
+09-conditions.sh
+NUMBER=$1
+
+if [ $NUMBER -gt 10 ] # be mindful of spaces here
+
+#Q&A in Shell Script: 1:01hr
+----------------------
+explicitly declaring datatype as integer only
+eg: declare -i x=10 but not needed that much
+creating integer in shell script
+creating string in shell script
+
+	
+read -p "Enter your username: " username
+
+1.08.58hr
+
+Installation using shell script-> 10-installation.sh / sudo sh 10-installation.sh
+-------------------------------
+if u want to install u shud have super user access
+so check user
+if super user, proceed
+if not super user, I should throw proper error
+
+intw qn: How you run a command inside shell script and take the output?
+
+if id is 0 then super user, if not its normal user
+id -u
+USERID=$(id -u)
+if [ $USERID -ne 0 ]
+then
+	 echo "pls run this script with root access."
+	 exit 1
+fi
+
+dnf install mysql-server -y
+if [ $? ne 0 ]
+then 
+	echo "Installation of mysql is Failure"
+	exit 1
+else
+
+
+echo "should not enter this line"
+
+Disavantage of shell script
+----------------------------
+There is no automatic exit if error occurs, in any programming language program exits upon failure.
+User has to manually check at every block of code.
+
+exit status
+------------
+what is exit status or How do u check a command is success or not in shell script?
+$? --> command to check exit status of previous command
+eg1: echo hello
+    echo $? --> o/p 0
+eg2: fjskfh
+     echo $? --> o/p is 127
+
+Disadvantage here:
+------------------
+For every installation there is so much validation needed.
+eg: we have 20 installations to do, so we need almost 7 lines of validation means 140 lines of validation for 20 installations.
+dnf install mysql-server -y
+
+To avoid these duplicates we go with functions...
+
+Recommendations for shell scripting:
+- using variables
+- avoid duplicate lines of code
+
+1:25:30hrs
+Q&A:
+------------
+1)
+U -> Unmerged file
+M -> Modified file
+
+Shell script is devops engineer primary responsibility, nobody gives the document but we get requirements.
+
+2)
+sleep 60 $
+echo "ProcessID of last background command:: $!"
+This information is stored by 3rd party tools and during audit when required that information can be fetched.
+
+running process logs are saved in /proc/
+exit process are stored by 3rd party tools, we need to configure that, we dont need that stuff.
+
+3)
+we shud not give sudo inside that 10-installation.sh, we have to give at every install right
+
+4) u can always delete the repositories inside settings
+
+5) we check the userid first if normal then convert to sudo , no option we have there..
+
+6) about job requirements: powershell is nothing but windows.
+u can mention bash or shell scripting
+
+7) git pull -- how is that establishing connection btw git and linux
+.git/config file has that url info.
+
+8) vscode there is 'Auto Save' option
+
+9) once u clone the github repo and go inside repo u will find (main)
+
+10) u can ask AWS support for some credits, mention the site url also else u can mention during refund process...

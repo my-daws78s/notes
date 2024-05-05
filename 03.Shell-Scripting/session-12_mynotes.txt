@@ -1,0 +1,171 @@
+we will check
+next week few more shell scripting concepts.
+ansible terraform python same concepts will repeat, we cant say linux is base for them but same concepts..
+
+Lets do expense-shell project and complete today...
+
+mysql.sh --> DB
+----------------
+whenever u create servers go immediately and update Route53 records..
+upcoming sessions we do it automatically using terraform.
+
+db.mydevops-learning.cloud
+backend.mydevops-learning.cloud
+frontend.mydevops-learning.cloud
+
+mysql_secure_installation --set-root-pass ExpenseApp@1
+we ran this last step and showed error upon 2nd run since password was set in first run of script...
+there is something called idempotency...
+
+Idempotency
+------------
+nature of program irrespective of how many times u run, it shud not change result.
+shell-script is not idempotent in nature by default, we need to take care..
+
+mysql_secure_installation --set-root-pass ExpenseApp@1
+first run success
+mysql_secure_installation --set-root-pass ExpenseApp@1
+2nd run showed as failure...check in cmd
+
+correct pwd ichinappudu or pwd already set inappudu exit code is 0
+mysql -h localhost -uroot -pExpenseApp@1 -s 'SHOW DATABSES;'
+mysql -h localhost -uroot -pExpenseApp@1 -s 'show databases;'
+error
+mysql -h db.mydevops-learning.cloud -uroot -pExpenseApp@1 -s 'show databases;'
+echo $?
+
+Toggle line comment last 2 lines of code in mysql.sh
+
+mysql -h db.mydevops-learning.cloud -uroot -pExpenseApp@1 -s 'show databases;'
+for check u can give any command but this is basic command in mysql
+so we first check 1st run and if not installed it will run and if already run will skip it..
+
+idempotent, normal intw may not ask but little innovative way who interviews may ask...
+
+in project u shud defintely check for this, coz we dont know how many ppl run this...
+
+u must enter same password otherwise backend nodejs will fail..
+
+backend.sh
+----------
+useradd expense --> this partcular command is not idempotent..
+eg: even in facebook after signup with one email id u cant signup with same email id again, it does validation. same way here...
+
+testing in cmd line:
+id ec2-user
+echo $? -->0
+id expense -->after running the script
+echo $? -->0
+id sivakumar
+no such user
+echo $? -->1
+
+in code:
+useradd expense --> remove this line and check id expense and its status code means u first check if this exists or not..
+id expense &>>$LOGFILE
+if [ $? -ne 0 ]
+then
+	useradd expense &>>$LOGFILE
+	echo "failure does not exist" --> u can use VALIDATE here VALIDATE $? "Creating expense user.."
+else	
+	echo "it exists"
+fi
+
+mkdir /app
+again means fails... so this cmd is also not idempotent
+so we use
+mkdir -p /app --> dont need bigger validations, if exists skips otherwise creates..
+
+backend.service creation
+vim is used only for humans, so we create a file...
+take the absolute path and copy to systemd inside script
+
+after running script u check:
+netstat -lntp
+systemctl status backend
+
+2nd run:
+after downloading backend its stuck, lets check why
+sudo su
+cd /app
+unzip /tmp/backend.zip
+replace DBCOnfig.js? yes, no, all
+so this we need to take care
+cd /app
+rm -rf /app/*
+unzip /tmp/backend.zip
+
+now schema we r doing multiple times right, so is there a chance for duplicate?
+open and see sudo cat /app/schema/backend.sql
+these cmds are all idempotent we gave like that..
+
+frontend.sh
+------------
+u create expense.conf file here similar to backend.service
+
+zipfile download is not a problem if multiple times, only extraction has issue:
+sudo su
+curl ....
+hit multiple times, it shows files in cmd line..
+
+run the script:
+netstat -lntp
+hit the website mydevops-learning.cloud
+
+Troubleshooting steps when problem occurs in application:
+---------------------------------------------------------
+is frontend able to connect to backend
+if not check inside expense.conf the backend.mydevops-learning.cloud
+check backend.mydevops-learning.cloud ip in Route53
+if all good then check security groups
+check now backend to db connection
+telnet check to backend : telnet backendip 8080
+backend lo ekkada db connections ichi unnam
+schema check
+backend.service 
+systemctl
+port open unda leda
+telnet connect work avuthunda leda: telnet mysql 3306
+entering string is causing issues - so enter numbers only in amount
+else u need to start backend service..
+
+----------------------------------------
+51.09 - Quiz time
+
+u can fill form with all details so that we approach u for job assistance...
+
+1. ssh -i custom_key --> how do u specify a custom SSH key file when connecting to a server
+
+2. $? --> special variable that represents the exit code status of last executed command
+
+3. Special variable $$ represents: PID of the script
+
+4. command >>file : how can u append the output of a command to an existing file in shell
+
+5. for loop is used for iterating over a range of numbers in Bash
+
+6. && operator purpose is and condition, | is for or
+
+7. proper variable declaration: A=10 (without space)
+
+8. How to execute command and take output in shell.
+result=$(command)
+result=$(command) --> is not right
+
+9. 1>>$LOGFILE --> represents success output
+
+10. passing cmdn line args to a shell script --> script-name arg1 arg2 ... argn
+
+11. shell script is not idempotent by nature
+
+12. how to read input from user in shell script -> read command
+
+13. $! --> special variable to store output of last process id
+
+14. $0 --> is for printing name of shell
+
+15. 31 represents red color
+
+1.10hrs...
+----------
+1.18

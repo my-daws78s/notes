@@ -1,0 +1,208 @@
+use cases generally asked in intws:
+-----------------------------------
+1. deleting the old log files
+2. monitor memory of the server
+3. share screen, given a doc file, count the number of each word. -- take this as assignment... use all concepts and google as well..
+
+Today:
+
+logs
+----
+everyday a new log file will be created with that date.
+nginx log rotation --> google search we can install packages like logrotate
+nginx log rotation centos --> google 
+instead of deletion we can archive (zip and transfer to other servers)
+
+since servers load will be less in prod we run off timings
+
+cd /tmp
+mkdir app-logs
+touch -d 20210101 backend.log
+touch -d 20210101 backend.js
+touch -d 20210101 frontend.log
+touch -d 20210101 expense.sql
+touch -d 20210101 cart.java
+mv * /tmp/app-logs
+find . -name "*.log" -mtime +14
+
+to schedule 18-delete-old-logs.sh
+what is crontab: its the way of scheduling shell scripts in linux servers..
+
+crontab -e
+crontab.guru
+*/2 * * * * sh /home/ec2-user/shell-script/18-delete-old-logs.sh --> to schedule every 2mins
+
+crontab -l
+
+to check logs:
+--------------
+cd /var/log
+tail -f cron --> check after 2mins...
+
+then u can verify inside /tmp/app-logs
+and find . -name "*.log"
+
+zip the file and move to another location instead of zipping... assignment.
+
+top command
+
+hard disk memory:
+-------------
+df -h --> disk memory in human readable format
+df -hT -> better way showing filesystem T means type used for kernel developers...
+
+RAM memory: we have only 2 memories right RAM and HARD DISK
+------------
+free
+free -m
+
+OS uses xfs and others are for internal purposes...
+df -hT | grep xfs
+df -hT | grep xfs | awk -F " " '{print $6F}' -->prints percentages of files
+df -hT | grep xfs | awk -F " " '{print $6F}' | cut -d "%" -f1 --> removed the % and gives numbers, we can compare these numbers...
+df -hT | grep xfs | awk -F " " '{print $NF}' --> the folders/file usage with more %
+
+now write the script 19-disk-usage.sh 30.26mins
+----------------------------------------
+
+MESSAGE+= --> inside while loop instead of overiding the value, it to append the values of all inputs we need to give + sign here.
+
+new line in shell script --> google search
+
+sending this output in a mail: 33.21
+-------------------------------------
+generally our laptop is also a computer, we sending mail from our laptop
+
+gmail server is like message broker between 2 persons..
+we have gmail visualization in windows but in linux since we dont have it we have smthg called postfix, this takes the credentials and hits the gmail-api, we dont have any user interface here..
+
+this is not working in rhel 9 as there are some additional security features, that might be blocking. so lets try in centos.
+
+centos-8 machine
+---------------
+centos
+DevOps321
+
+in companies we dont have gmails right, they have certain mail servers and we use them.
+
+postfix --> gmail ni mana side nunchi hit chese oka broker laga
+cyrus-sasl-plain --> for authentication
+mailx --> for mailing
+
+how to send email from rhel or centos --> google search gives same commands in gmail.MD
+
+from-user --> they have to login
+to-user -->	
+
+open gmail --> manage ur google account --> Security --> Signing in with 2-Step Verification was turned on --> 2-Step Verification 
+or else if u dont want to do all this...
+touch /etc/postfix/sasl_passwd
+[smtp.gmail.com]:587 xyz:AppPassword --> then add username and password here
+smtp.gmail.com --> domain name of gmail.
+
+postmap /etc/postfix/sasl_passwd --> u shud inform postfix the password is this 
+
+echo "This is a test mail & Date $(date)" | mail -s "message" info@joindevops.com --> normal password is not working, maybe they working only thru browsers.
+
+cd /var/log
+tail -f maillog
+Username and Password not accepted.
+seems we entered wrong password, let me check and restart postfix
+systemctl restart postfix 
+still dint work.
+
+Now, lets setup with different method: 47.29mins
+------------------------------------------------
+open gmail --> manage ur google account --> Security --> Signing in with 2-Step Verification was turned off --> 2-Step Verification turn it on...
+
+in search over there search with --> app u wont see until u turn it on. Now click on App Password and give some name and note app passwrord and give tht password in /etc/postfix/sasl_passwd
+
+and then:
+postmap /etc/postfix/sasl_passwd
+systemctl restart postmap
+echo "This is a test mail & Date $(date)" | mail -s "message" murali4uj@gmail.com
+
+we can see mail in gmail now..
+
+Now lets put this mail command in shell script..
+
+as a devops engineer we dont much worry of html format...
+
+1. write script to monitor smthg
+2. send alert mail if smthg more than threshhold
+
+3. write a script to monitor RAM memory and send alert email.. ur assignment..
+
+lets stop shell scripting here, later for roboshop we will do again...
+
+Disadvantages
+-------------
+1. no idempotency
+
+2. Hard to understand the script.
+(Do u think we are using shell-script to configure servers and deploy applications..cicd, configuration management we have now, shell-scripts have been used for this 10yrs back...)
+
+3. Single script may not work for all distros.
+4. no error handling.
+5. shell scripting is tough if u have more servers:
+eg: 100 servers lo appln is running, to change in all servers is higly impossible..
+
+Addressing all these we have Ansible --> configuration management.
+-------------------------------------------------------------------
+1.01hrs
+
+previously we had smthg called Chef, Rundeck, saltsack - most simple one is Ansible
+
+#command from server1:
+ssh centos@ip -C "echo Hi, from RHEL9 > /tmp/hi.txt"
+#goto server2:
+cd /tmp
+cat hi.txt
+
+generally to create a file:
+------------------------------
+1. login to file
+2. create a file
+3. exit the server
+
+whereas in ansible u can do from one server itself:
+eg: take some script in github and take raw url.
+to run this script from internet
+curl raw-url-mysql.sh sudo bash
+
+#from server1:
+ssh centos@ip -C "curl raw-url-mysql.sh sudo bash"
+#it simply runs the script in server2..
+
+#go server2:
+systemctl status mysql
+
+so when we have 100 servers:
+----------------------------
+login to server
+run mysql script
+
+so using Ansible, u can put those 100server ip's in loop and simply run from server1, our efforts goes very minimal..
+
+Ansible contain master node and many remote nodes.
+in the background it connects using SSH protocol only.
+Ansible in background also uses linux commands only.
+
+we need to group the servers belonging to one application.
+can I ask Ansible to connect 10 different app's at once? Theoritically possible but practically thats not the case.
+
+If I work for 10 projects, I cant create single Ansible script and run 10 different tasks in that.
+
+best case is expense backend, say it has 100 servers and I need to group these 100 servers and if any change I need to update the 100 servers.
+
+Again same...
+variables,
+datatypes
+functions,
+loops,
+conditions
+
+Master Node: Where Ansible is installed
+Remote Node: to which we connect from Ansible server
+
+1:12hrs

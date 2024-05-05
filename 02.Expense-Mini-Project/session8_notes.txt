@@ -1,0 +1,223 @@
+icann
+root servers
+nslookup.io (since it was not showing in putty after )
+
+-----------------------------
+How DNS works:? 1st 40mins
+--------------------------
+DNS is like a dictionary
+key=value
+daws78s.online=IP address
+
+when you enter joindevops.com first time? what happens here?
+computer understands only numbers/ipaddress but not names
+we human can remeber names but not numbers/ipaddress
+
+Where can I find IP address?
+Initial request, browser checks its cache, if not found asks OS
+OS checks its cache, if not found anything
+OS sends request to ISP (Resolver) ... it is ISP responsibility to get the IPaddress of a domain. This is called as DNS resolution. Generally called as Resolver.
+
+Resolver is the component responsible to fetch IP address, it is from ISP.
+All ISP's are configured with how to send a request to root servers.
+
+DNS has Root Servers:
+---------------------
+Just like English dictionary is maintained by Oxford, to add new names they are responsible.
+Eg: Add google in dictionary meaning search engine.
+
+Who owns root servers?
+12 different companies/nonprofit organisations across the world called as ICANN - Internet Corporation for Assigned Names and Numbers.
+For internet to work these root servers has to work.
+There are about 13 root servers which again have 100's of backup.
+google search: root servers
+these Servers are again computers only responsible to store this information 
+
+I want IP address for joindevops.com
+Under Root servers we have TLD (Top Level Domains)
+TLD: .com .net .org .in .us .uk .online .ai .shop .site .edu .gov.in (subset of .in) .co .inc
+
+Again these TLD's are maintained by different companies
+
+Root servers will scan and give the information of .com TLD
+we also can create a TLD like .devops if we are abe to manage the infrastructure then we also can get the permissions from Root Servers.
+
+This info will be stored in resolver cache...
+it will contact .com TLD
+Since we took joindevops.com .com TLD should maintain what is the IP address of joindevops.com
+
+Domain Registars/Providers:
+---------------------------
+godaddy hostinger route53 google is also providing domain names
+
+when you buy a domain in hostinger they will update .com TLD about ur domain, address details etc.
+
+updates information like:
+domain name
+address
+nameservers
+
+we transferred hostinger to AWS (route53)
+I updated AWS NS inside hostinger.
+hostinger told it will take 24hrs to update, hostiner will update nameservers to the TLD.
+Now .online TLD will have AWS nameserver details
+
+daws78s.online ---> resolver contacts .online TLD
+.online TLD will give nameserver details... 
+resolver will get AWS NS details...as we transferred from hostiner to AWS
+then resolver will contact AWS NS. Then AWS will give A record.
+
+Now lets configure frontend instance again:
+dnf install nginx -y
+systemctl start nginx
+systemctl enable nginx
+hit the public ip of frontend now...
+
+nslookup mydevops-learning.cloud
+nslookup online:
+https://www.nslookup.io/domains/mydevops-learning.cloud/dns-records/
+we can see the ip associated here...
+
+since infrastructure is inside AWS we used the NS of this inside Hostinger
+If we had to use the hostinger NS and from there to search inside AWS would take lot of time.
+we can do lot of infrastructure automation in this.
+
+--------------------------------------
+#Q&A:
+
+http/https: about SSL security...
+
+hostinger will register to TLDs and TLD will register to Root Servers.
+
+Eg u can also become a domain provider like Hostinger, for that u need to contact TLD and request for information what is available and not available and take those 
+TLD will not update what all domains have been purchased, it will keep only the TLD details.
+eg: if I start a TLD as .siva root server cannot give that info, it will ask if we are proper company and details then it will register .siva
+Now since I registered .siva I will contact hostiger, google, godaddy this is purely a business..
+
+finally dns address will be resolved thru name servers, name servers evari daggara unte ownership valla daggara annattu.
+
+The nameservers will get us the ip of the server.
+
+40mins- again recreating project:
+
+----
+fastest automated way is without touching the configurations and servers..
+/etc/systemd/system/backend.service -> here privateaddressip of db -> db.daws78s.online
+by this we will not need to restart as whenever there are config changes we need to restart application.
+
+Types of records:
+-----------------
+A - gives ip-address of domain
+NS - authoritive nameservers
+SOA - ownership record (AWS automatically creates) , we dont need this
+CNAME (Canonical name) -> u can point to another domain
+MX record -> for mail servers
+eg info@joindevops.com --> mails comes to our mail box is thru MX records.
+intw qn difference btw A and CNAME
+
+nslookup db.daws78s.online -> u created a record in Route-53 as A giving ipaddress.
+gives the private ip
+https://www.nslookup.io/domains/daws78s.online/dns-records/
+nslookup google.daws78s.online -> u created a record in Route-53 as CNAME giving www.google.com
+u will find canonical name = www.google.com
+
+backend setup:
+mysql -h db.daws78s.online -uroot -pExpenseApp@1
+
+frontend:
+instead of localhost: backend.daws78s.online
+this u create A record in Route53
+
+This is how we use domain-names without changing the ip address inside application but inside Route53.
+57.47min
+-------------------------------
+
+Soft link vs Hard link:
+-----------------------
+what is inode?
+intw qn
+inode = index node
+ls -l --> we find inode number
+ls -i index.html
+inode number stores permissions, address storage, ownership.
+It actually stores metadata, its not file information or content.
+earlier we had magnetic disks kind of details right, details about that.
+Just like mobile number has the information, inode stores the information.
+
+shortcut: points to the real location
+windows right click - open file location
+since we cant remember full location, we setup shortcuts, nothing but in linux its softlink
+
+hardlink: we keep the crucial files in multiple locations, they are hardlink, just another copy.
+
+If I delete main file: softlink does not work
+If I delete main file: hardlink works
+softlink/symlink/symboliclink - is the shortcut to the file, if  remove actually symlink will not work.
+
+hardlink is another copy of file, if you remove main file, hard link will work?
+
+does inode of softlink is same as main file? definite intw qn
+inode is different in softlink. most ppl think as same..
+Does inode of hardlink is same as main file? yes inode is same.
+when someone deletes the file do u think storage also is deleted?
+No....because other hardlinks are pointing to this.
+when u delete last hard link then only storage is deleted in linux.
+
+ln --> link command
+ln -s index.html joindevops.html -->softlink joindevops.html is created
+ls -l
+joindevops.html -> index.html
+rm index.html 
+ls -l (index.html shows in red color)
+recreate and its normal color again
+
+ln index.html index-hard.html (creating hard link)
+ls -li (lists all inodes, here we can see inode of index.html and joindevops.html is same but joindevops.html is different)
+ls -i joindevops.html
+
+when we use systemctl enable sshd
+symo link is created, lets see that
+
+Linux Folder Structure:
+-----------------------
+Windows root directory: Windows+e
+Linux: cd /
+ls -l
+/root -> directory for root user
+/bin -> binaries, while system is starting these binaries will load
+ls -l --> core commands will be here yum,who,mkdir,wait,user,ssh,sftpmount
+/boot --> when linux system starts, boot loading from here
+loader, grep2 is the first loaded one
+/dev = devices --> hard disk, key board, mouse
+port,tty means terminal,disk devices
+/etc = extra configurations = /etc/nginx
+/home = linux stores all users in home
+lib = operating system libraries just like npm install
+/media = cd or dvd drives
+/mnt = you can mount other disks
+/opt = optional packages = if u are installing any packages manually prefer opt
+in /etc autmatically it comes and installs here whereas in /opt when we want to install softwares manually we prefer doing it here
+/proc = related to process information (pidinfo) --> meminfo,cpuinfo,uptime
+/run --> runtime data dont know much abt his
+/sbin --> system adminstrator command
+/usr = user commands, libraries, documents
+/tmp --> it is temp, not an important
+/var = variable... mainly log files eg: /var/log/nginx,amazon,dnf.log
+
+To remove a package properly:
+stop the services
+mremove --> removed all packages
+delete the directores manually
+/etc/nginx , /usr/share
+
+nginx is webserver n reverse proxy server, to serve html content
+
+how to recover deleted files in linux:
+1.backup
+3rd party tools
+
+http://frontend-publicip/health
+
+
+
+

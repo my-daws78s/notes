@@ -1,0 +1,96 @@
+Next 2 days my voice will be slow:
+
+We today discuss on functions/filters:
+
+Ansible we cannot create functions, we can use existing filters
+
+Filter is data manipulation/transaformation
+Eg: devops --> DevOps
+aws --> AWS
+
+13-conditions.yaml
+------------------
+if a number is less than 10, print less than 10
+otherwise print greater than equal to 10.
+
+number < 10
+
+prompts are always considered as string even if we pass number, shell can take it but not in ansible..
+
+Ansible is strict, it cannot automatically convert text into number.
+
+10 --> text
+
+ansible filters --> google search
+
+ansible filters are useful, they are developed in python
+
+ansible convert string to int --> google search
+when: number < 10
+when: number | int < 10
+so if u pass string it takes as zero
+
+14-filters.yaml
+----------------
+filter is denoted by | pipe symbol
+
+dictionary is map/key-value pair
+dict2items/list
+----------------
+
+maps starts with {}
+list starts with [] inside it can have maps again and list of addresses again
+
+items to dictionary now:
+-------------------------
+items2dict
+
+like this we have many filters, can use upon need.
+
+ansible loops --> google search
+-------------
+install package using loops
+
+ansible-playbook 16-loops.yaml
+
+Now, lets create expense project in ansible..
+-------------------------------------------------
+
+ansible mysql module --> google search
+mysql_info module
+its a community module, not created by ansible but by ppl like us created and ansible considered that.
+
+just as we check in putty that ansible --version if not installed will throw error same way...
+db.yaml version check is using mysql_info module
+
+when u run a command and to take that output into a variable we should be using register: variable_name
+
+we are facing an error: Missing python dependencies
+
+Ansible is developed in Pythin.
+PyMySQL is a dependency for python to connect mysql servers
+cryptography to be installed to use password in command-line.
+
+npm install --> to install dependencies for nodejs
+pip if for python
+ansible pip --> google search
+
+ansible --version u can check its using python 3.9
+hence pip we use 3.9 if its 3.11 then same 3.11 we use.
+
+mysql -h db.daws78s.online -u root -pExpenseApp@1
+for me:
+mysql -h 54.226.176.22 -uroot -pExpenseApp@1 went successful:
+
+
+practice:
+filters,
+loops
+db.yaml
+
+we finished:
+variables,
+datatypes
+functions
+loops
+conditions

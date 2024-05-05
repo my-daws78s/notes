@@ -1,0 +1,493 @@
+ec2-user
+DevOps321
+AMI - Amazon Machine Image -> devops-practice -> available in us-east-1 region
+=====================================
+#google searches
+
+gitbash download
+OS Architecture
+AWS services health dashboard
+AWS linux user management
+Jenkins.io Downloads section u find RedHat packages (urls have to be added as told in session3 cd /etc/yum.repos.d)
+putty download
+super putty Download SuperPuttySetup-1.4.0.9.msi
+putty asking super putty location
+mobaxterm download free edition lo installer edition GET MOBAXTERM NOW!
+systemctl service file sample
+centos install mysql server, centos install mysql server both having mysql-server
+
+aws free tier route53
+hostiner india (What we did is saying to hostinger that I used u only to register domain but these are the name-servers am actually going to use.)
+root servers
+
+vscode download (for windows)
+Want to store github token in local laptop - google search
+search if condition in shell script
+shell operators
+creating integer in shell script
+creating string in shell script
+read command with message in shell script
+
+=====================================
+session2:
+
+#Commands:
+
+#Generate public and private key manually:
+ssh-keygen -t rsa -b 4096 -f filename
+
+#Linux authentication
+ssh -i privatekey username@publicip
+
+#command --help
+ls -l long listing
+ls -lr reverse alphabetical order
+ls -lt latest files
+ls -ltr reverse order
+ls -la all files/directories including hidden
+
+#CRUD - Create Red Update Delete
+touch filename
+cat > filename -overwrites the text
+cat >> filename appends the text
+rmdir filenames (removes only empty directories)
+rm file (deletes only files this way)
+rm -r directory (recursively deletes dir/files)
+
+cp -r dir1 dir2 (copy dir and its contents)
+mv sourcefile destfile (renames along with moving files)
+grep -i searchterm filename (case insensitive)
+cat filename | grep searchterm (piping concept means o/p of cat acts as input to grep)
+
+====================================================================================================================
+#session3:
+
+#wget file-end-url (to download files or folders or softwares into linux server)
+wget https://raw.githubusercontent.com/daws-78s/notes/main/session-02.txt
+#curl filenamefromgithub (to get text directly on linux terminal and can also search)
+curl https://raw.githubusercontent.com/daws-78s/notes/main/session-02.txt
+curl https://raw.githubusercontent.com/daws-78s/notes/main/session-02.txt | grep ls (will print all text having ls)
+
+#cut -d "/" -f1 (cut command is used to get fragments of a text using demiter. delimiters are like , /)
+echo https://raw.githubusercontent.com/daws-78s/notes/main/session-02.txt | cut -d "/" -f1
+echo https://raw.githubusercontent.com/daws-78s/notes/main/session-02.txt | cut -d "/" -f2
+so on
+#awk (equal to simple programming language, we can use similar to cut as well, generally used to divide the text in column format, we use in shell scripting)
+echo https://raw.githubusercontent.com/daws-78s/notes/main/session-02.txt | awk -F "/" '{print $1F}'
+echo https://raw.githubusercontent.com/daws-78s/notes/main/session-02.txt | awk -F "/" '{print $NF}'
+#here we get columns
+cat /etc/passwd | awk -F ":" '{print $1F}'
+cat /etc/passwd | awk -F ":" '{print $NF}'
+
+#head to fetch first 10 lines of file
+head filename
+tail filename
+head -n 2 filename (to get first 2 lines only)
+tail -n 2 filename (to get last 2 lines only)
+head -n 2 /etc/passwd
+tail -n 2 /etc/passwd
+view filename (read-only by default)
+
+#Editors vi and vim, visually imporoved (vim is improved version of vi), we also have nano u can use that as well.
+(to edit or replace a text inside file in linux)
+as u open file its in ESC mode, to enter colum mode shift+coln and back to esc mode means ESC button, to enter insert shift insert
+:q quit
+:i
+:q! force quit
+:wq enter
+:set nu
+:set nonu
+
+gg (goto top)
+shift+g (go to last line)
+/searchtext (search work from top and use n to go next)
+:?searchtext (search from bottom when u know it exists in end of file and use n to go one after other) 
+:noh (after ur search remove highlight)
+:%d (deletes full file content)
+:1d (deletes 1st line and so on :41d etc)
+
+:s/<word-to-find>/<replace-with-word> -> replace in the line where cursor is
+:%s/<word-to-find>/<replace-word> -> replace in every line, but only in first occurrance of that line
+:<lineno>s/<word-to-find>/<replace-word> (replace in line but 1st occurance)
+:<lineno>s/<word-to-find>/<replace-word>/g (replace in the entire line)
+:<lineno>s/<word-to-find>/<replace-word>/gi (replace in the entire line irrespective of case)
+:%s/<word-to-find>/<replace-word>/g -> replace in every line, but only in first occurrance of that line
+
+u ->undo
+yy ->copy
+dd ->cut
+p ->paste
+10p ->copy 10times
+
+#Permissions:
+R - 4
+W - 2
+X - 1
+
+u - users (root/owner)
+g - groups
+o - others
+
+root/owner can give any permissions:
+chmod o+x session-01.txt
+chmod g+rw session-01.txt (chmod 060 is not a replicate of g+rw for that we shud see users and others earlier permissions and need to set accordingly.)
+chmod ugo+rwx session-01.txt (chmod 777 full permissions)
+chmod o-rw session-01.txt (remove rw access to others)
+chmod 755 (chmod 000 fn, chmod u+rwx,go+rx fn this works to set chmod 755)
+
+Note: using numbers remember for intw purposes, u shud set numbers for all ugo properly if using number, using otherwise is easy, can set whatever is required.
+execute means eg: for testers we dont want them to either read or write anything but just execute the file. o+x
+
+====================================================================================================================
+Session4:
+
+****************************** User Management Begins ******************************
+
+$ means normal user, he cant create users, shud be root user
+sudo su - (logins to root level /)
+sudo su (logins to location where ur dir earlier was)
+
+useradd ramesh
+id ramesh (to know user and default group both primary and secondary of the user)
+uid=88200200(vujjm) gid=88200200(vujjm) groups=88200200(vujjm),88200021(ug_commercesupportext)
+cat /etc/passwd (has users information)
+getent group (to see all groups)
+passwd ramesh (setting pwd)
+
+so far we used keybased authentication, pub and private key.
+#to change this behavior, means to use username/password mechanism:
+/etc/ssh/sshd_config
+PasswordAuthentication yes
+if this file has errors no one can login to their servers.
+sshd -t (to check if changes are proper, must verify after making changes else u also cant login to server again)
+systemctl restart sshd (service management command)
+
+##Now we inform user that this account is created successfully.
+Open new cmd and login
+ssh ramesh@publicip
+password
+pwd
+/home/ramesh
+Note: Devops engineers send mail asking to create users.
+
+Now create 2 groups devops, testing
+groupadd devops
+getent group (u can check the new group)
+usermod -g devops ramesh (adding ramesh to devops)
+id (we see ramesh added to devops as both primary and secondary group)
+#In Linux user can have only one primary but many secondary groups, we cannot remove primary group of user but can change/modify.
+groupadd testing
+usermod -aG testing ramesh (adding ramesh to supplementary/secondary group)
+id (now u see devops as primary and both devops and testing as secondary)
+gpasswd -d ramesh testing (deleting ramesh user from testing group)
+usermod -g testing ramesh (ramesh primary group is now testing)
+
+#CRUD process:
+create user --> useradd
+read user --> id or cat /etc/passwd
+modify user --> usermod -g or -aG <group-name> <user-name>
+delete user --> remove user from groups and then delete user, else u have to manually delete from group again.
+groupdel user --> manualy deleting ramesh group
+(right way of deleting: delete user from secondary, change primary group to initial group ramesh and then delete user)
+useradd murali
+usermod -g murali devops
+usermod -aG murali testing
+gpasswd -d murali testing
+usermod -g murali murali (initial groupname)
+userdel murali
+
+#if user has to login with his private key:
+robert shud create his public key and share that to admin team.
+ssh-keygen -t rsa -b 4096 -f robert
+Now admin team should add this key to linux servers
+#admin tasks as a root user:
+useradd robert
+cd /home/robert
+ls -la
+mkdir .ssh
+chmod -R 700 .ssh
+cd .ssh
+vim authorized_keys
+-->here u add the public key of robert that he sent admin team
+chmod 400 authorized_keys (now in case robert complains he forgot his pvt key he gain has to create pub key and sent to admin and we just modify this file)
+these are pure linux admin roles but we also might do, good to know as part of user management roles..
+cd ../
+chown -R robert:robert .ssh
+#Now robert can login using his private key:
+ssh -i robert robert@pubip
+sudo su - (to give robert sudo access, now it asks for password)
+vim /etc/sudoers (no restarts are needed upon changes to this file, user shud be able to sudo as root immediately without asking password)
+#%wheel ALL=(ALL) NOPASSWD: ALL
+robert ALL=(ALL) NOPASSWD: ALL (this is the entry to login without password)
+sudo useradd sachin (so it has sudo access without password)
+
+#interview qn1: Modifying /etc/sudoers if very critical right, why should we touch that, then u say there is other approach as well to add user to wheel group which is also a admin group
+usermod -g wheel robert (u shud first remove the above entry, not to forget)
+id
+uid=(robert) gid=(robert) groups=(robert), (wheel) 49.56min Session04
+
+#Now robert connects using keypair:
+ssh -i robert robert@pubip
+sudo useradd sachin (this becomes success as he has got root privelege as well)
+
+#interview qn2: where linux stores users /etc/passwd, where linux stores password /etc/shadow
+vi /etc/shadow
+useradd ram (now check above file and it will have password encrypted)
+passwd ram (also the changes will be stores here)
+
+#Centralized Management - IAM Identity Access Management (a user in a company to have same username/pwd across all internal organization) we dont need that.
+
+****************************** User Management Ends ******************************
+
+****************************** Package Management Begins ******************************
+
+Anything to install in linux we call it as package management
+diagram
+In Linux we call as package, Windows we call it softwares.
+in Windows our laptop is connected to internet it sends url and downloads and install.
+In linux we use yum to download (earlier rpm - redhat package manager) some games need javascript etc
+In linux one manage is dependant on another, earlier rpm we had to manually get the dependencies, install them and finall main package...
+
+cd /etc/yum.repos.d (location of package urls)
+cat amzn2-core.repo (we need to add inside this file if we need to install jenkins etc so that yum will autofetch and install)
+cat amzn2-extras.repo (but how to add these urls??? clarify) doubt***
+
+ubuntu: apt-get is the similar command to yum, new command dnf also came we will discuss in next class..
+
+yum install git -y
+yum remove git -y
+yum list installed
+yum list all | wc -l (9192)
+yum list installed | wc -l (463)
+yum list available | wc -l (8724 all minus installed)
+yum search mysql (if u dont have idea of exact package)
+
+#Interview qns3
+cat /etc/*release (How to figure out linux server distribution)
+cat /proc/cpuinfo (Process Information)
+cat /proc/meminfo (memory info)
+cd /etc/
+ls -l *release (os-release system-release)
+cat system-release
+cat /etc/os-release
+cat /etc/*release/
+
+#AWS have their own repos instead of yum.repos and its amazon extras
+yum install nginx -y
+it will show instead of yum use this -> amazon-linux-extras install nginx1 -y
+
+yum update (to know if any packages have got updates)
+yum update packagename
+
+#OS ipdates are purely SRE or Linux administrator tasks. We have to make our application down.
+
+****************************** Package Management Ends ******************************
+
+****************************** Service Management Begins 1.07hrs ******************************
+
+Ports 65536
+ssh 22
+ssh -i pvtkey username@ip
+internet lo request goes till IP address when we issue above ssh command.
+generally request goes to IP and IP will check if there is any service running on port22, then it will forward request to ssh.
+ssh is a service, which checks credentials, if success logins. if ssh is not up we cant login.
+delhi to mumbai we posted and dint write flat number, letter will stuck at security. Same way since there is port number request is able to reach till ssh service.
+
+
+Session6:
+
+****************************** Process Management Starts ******************************
+
+just like real world ticketing system, Linux also follow PID Process Instance Id.
+If task is big like building a house, we create sub tasks...
+also in team we have heirarchy one reports to other. like child reporting to immediate parent PPID Parent PID.
+
+For every single action Linux tracks thru process id -> ps command
+ps -ef -> all process in linux
+Application is nothing but a process inside linux.
+
+2 types of process:
+foreground: blocks the terminal until it completes. sleep 20
+background: runs in background sleep 20 &
+ps -ef | grep sleep | grep -v grep (asking to remove the 2nd line of grep)
+
+When a service is stuck we restart:
+kill pid (graceful termination, its a request by ordinary person)
+kill -9 pid (forceful termination, its an order like traffic police)
+
+top - to see all running process with cpu and ram
+when we use appln we use this as part of troubleshooting
+
+****************************** Process Management Ends ******************************
+
+****************************** Network Management Starts ******************************
+NM as everything is cloud so we are not doing IP address, Subnetting, Data center creations like kind of tasks. That comes in cloud concept, when doing vpc creation we will discuss those. Now imp thing is how to check a port is open or not.
+
+netstat
+netstat -l (listed)
+netstat -lt (internet works on tcp protocol, we care abt tcp transfer control protocol)
+netstat -ltn (also get port number)
+netstat -ltnp (process id also comes but only with root)
+sudo netstat -ltnp --> list down the tcp opened ports and their PID
+
+nginx runs on port 8080
+other network protocal comds are like ping, telnet etc we discuss later
+
+********************* 3 Tier Architecture Expense Project *********************
+
+Load Balancer (Captain)
+Front End (Waiter)
+Backend (Chef)
+Database (Raw items)
+
+Provisioning:
+When app is getting started, DB shud be ready -> Backend then -> Front end (raw items first then check then waiter)
+When DB is ready backend can do operations on db, when backend is ready front end can send requests to backend.
+
+Termination process: stop LB, then front end, backend, db, this is the way to stop without having any issues.
+Order of Removal: Captain will stop new customer, no more waiter, then chef wont get orders and then raw stuff is preserved or thrown out.
+
+In a secure env companies prefer username and password as key based is complex.
+in a public env, key based are used.
+
+RHEL9 is latest Red Hat enterprise OS, it has got support, all companies prefer this, eg: banking as they need support, they afford the cost.
+CentOS = opensource startup companies prefer, this has got no support, but both are same.
+
+ec2-user
+DevOps321
+AMI - Amazon Machine Image -> devops-practice -> available in us-east-1 region
+Windows OS is nothing but an image
+Image means we + our surroundings. -- a time lo etla unnamu anedi..
+AMI means taking a photo of linux Base OS + packages we install, now installing that AMI means we are directly using with those packages.
+Windows comes as a package with Anti virus installed and other softwares.
+
+We will launch 3 instances DB, backend, frontend.
+We will also learn to customize OS, how to build an AMI later.
+select without keypair from dropdown, security groups also we will restrict to our project as we mature in our project.
+
+Now we connect to server from gitbash:
+ssh ec2-user@publicip
+DevOps321
+
+Download putty, support putty or mobaxterm
+
+*********************Databse setup**********************
+https://github.com/daws-78s/expenses-documention/blob/main/mysql.MD
+Lets run DB commands now as we launched DB Image...
+
+oracle, postgress sql, mssql u can use any but here we are using MySQL8 (free)
+SQL dbs are RDBMS relational database management systems, they are table and column based systems. Just like excel we have header based, id, un, pwd
+
+USER Table:
+-----------
+ID USERNAME 	PASSWORD 		MOBILENUMBER
+1  joindevops	joindevops321	6281947313
+
+ADDRESS Table:
+-------------
+IS USERID AddressLine1	AddressLine2	City
+1	1		sanath nagar
+
+In computers everything is based on numbers, like adhar card 
+Excel is also a popular database, majority info is stored in excel sheets, flipkar, amazon dont give database info, they give the excel and take and save in db.
+
+Database contains Schemas and they contains tables.
+
+Now, developer, devops architect tell which tools are good to use, they decided MySQL for us.
+In RHEL 8 and 9 we use use dnf command but not yum.	
+mysql is heavy actually sometimes t2.micro may hang, then we may go with t3.small bigger instance..
+
+#commands:
+sudo su -
+dnf install mysql-server -y
+systemctl enable mysqld
+systemctl start mysqld
+systemctl status mysqld
+netstat -ltnp | grep mysqld
+mysql open 3306 postgress will open some 5000 series
+It also opened 33060? what was that??
+ps -ef|grep mysql
+mysql_secure_installation --set-root-pass ExpenseApp@1
+#Now to know if ur properly connected to sql:
+mysql
+show databases;
+
+*********************backend setup 2nd instance**********************
+
+https://github.com/daws-78s/expenses-documention/blob/main/backend.MD
+Here we are using NodeJS as programming language.
+
+to run the nodejs in a application program needs that runtime (software), eg to play few games or to run certain website we need java/javascript installed because they are developed on those languages. Now since our application is built on nodejs so we need the nodejs environment/software/runtime.
+
+sudo su -
+dnf module list (how did we know that 18 is the default?)
+dnf module disable nodejs:18 -y
+dnf module enable nodejs:20 -y
+dnf install nodejs -y (then 20 version will be automatically installed.)
+
+Now this application not giving access to specific user we are giving it to functional or system user. Hence creating the user.
+useradd expense
+User expense is a function / daemon user to run the application. Apart from that we don't use this user to login to server.
+
+Now lets create a new directory to pull the source code its a good practise:
+mkdir /app
+curl -o /tmp/backend.zip https://expense-builds.s3.us-east-1.amazonaws.com/expense-backend-v2.zip
+Note: curl can be used to download similar to wget when used as curl -o option.
+cd /app
+unzip /tmp/backend.zip
+Just as any application this app also has some dependencies and we download them:
+npm install --> install the libraries/dependencies/plugins npm is related to applications, yum is for system/server packages
+cat package.json -> this contains the list of dependencies to install and when we do npm install it just installs the libraries and only then appn will run.
+only if we have cement,sand we can build a house so we bring them first.
+
+yum install nginx -> automatic download and installtion
+systemctl start nginx -> runs the service automatically
+
+our application is manually configured by us, we cannot run systemctl commands to start our application.
+systemctl will give an option to configure our appln as automatic start/stop/restart.
+That is this:
+/etc/systemd/system -> create ur service file in this directory
+
+#google search: systemctl service file sample
+https://www.suse.com/support/kb/doc/?id=000019672
+
+.backend.service -> .service is also mandatory
+cd /etc/systemd/system
+cat amazon-ssm-agent.service (to see the format)
+
+Note: private-ip will increase security and speed. In a project different servers are like one family and private ips are like nicknames, just like we call within family with nicknames we use the same way within servers of a same project.
+
+#Setup SystemD Expense Backend Service
+vim /etc/systemd/system/backend.service
+[Unit]
+Description = Backend Service
+
+[Service]
+User=expense
+#Environment=DB_HOST="<MYSQL-SERVER-IPADDRESS>"
+Environment=DB_HOST="privateip"
+ExecStart=/bin/node /app/index.js
+SyslogIdentifier=backend
+
+[Install]
+WantedBy=multi-user.target
+
+Note: this service file can be made more complex but we dont want that now...Dev team mentioned only when /app/index.js is run the appln will be up.
+Unless backend system knows the details of DB just like chef in backend shud know raw items.
+
+When we make changes in above location we need to run below services:
+systemctl daemon-reload (Load the service)
+systemctl start backend (Start the service)
+systemctl enable backend
+systemctl status backend
+#We got an error need to discuss in next class...it is not able to connect to database...
+
+Since Ugadi and Ramzan are holidays practise these sessions multiple times...
+1.31 session ends..
+
+
+
+
+
+
+
